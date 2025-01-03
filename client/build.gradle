@@ -1,0 +1,49 @@
+plugins {
+	id 'java'
+	id 'application'
+	id 'org.springframework.boot' version '3.4.1'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'strava'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+}
+
+
+// Task to run the console client
+task runConsoleClient(type: JavaExec) {
+    group = 'application'
+    description = 'Run the Console Client'
+    mainClass = 'strava.client.console.ConsoleClient'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+// Task to run the swing client
+task runSwingClient(type: JavaExec) {
+    group = 'application'
+    description = 'Run the Swing Client'
+    mainClass = 'strava.client.swing.SwingClientGUI'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+// Spring Boot configuration, defaults to running the web client
+bootRun {
+    mainClass.set("strava.client.web.WebClientApplication")
+}
+
+
+
