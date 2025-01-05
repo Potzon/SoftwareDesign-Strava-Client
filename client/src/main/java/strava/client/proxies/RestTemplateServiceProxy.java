@@ -78,7 +78,7 @@ public class RestTemplateServiceProxy implements IStravaServiceProxy {
 	}
 
 	@Override
-	public List<TrainingSession> sessions(String token, Date startDate, Date endDate) {
+	public List<TrainingSession> sessions(String userId, String token, Date startDate, Date endDate) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -18,7 +18,7 @@ public interface IStravaServiceProxy {
     
     //training sessions methods
     TrainingSession session(String userId, String token, String title, String sport, Double distance, Date startDate, Integer duration);
-    List<TrainingSession> sessions(String token, Date startDate, Date endDate);
+    List<TrainingSession> sessions(String UserId, String token, Date startDate, Date endDate);
     
     //challenge methods
     Challenge challenge(String userId, String token, String challengeName, Date startDate, Date endDate, Double targetTime, Double targetDistance, String sport);
