@@ -5,7 +5,7 @@ import java.awt.*;
 import java.util.Date;
 import strava.client.data.Credentials;
 
-public class SwingClientGUI {
+public class SwingClientGUI extends JFrame{
     private static SwingClientController controller = new SwingClientController();
     private static String userId;
     private static String token;
@@ -126,4 +126,7 @@ public class SwingClientGUI {
         // Implementar lógica de registro si es necesario
         JOptionPane.showMessageDialog(null, "Register functionality not implemented yet.");
     }
+    
+    
+    
 }
