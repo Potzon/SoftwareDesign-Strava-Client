@@ -1,7 +1,10 @@
 package strava.client.proxies;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -61,34 +64,36 @@ public class HttpServiceProxy implements IStravaServiceProxy{
         }
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Map<String, String> logout(String userId, String token) {
-	    try {
-	        // Crear la solicitud HTTP con el token en el cuerpo
-	        HttpRequest request = HttpRequest.newBuilder()
-	            .uri(URI.create(BASE_URL + "/" + userId + "/logout"))
-	            .header("Content-Type", "application/json")
-	            .POST(HttpRequest.BodyPublishers.ofString(token))
-	            .build();
+    @Override
+    public boolean logout(String userId, String token) {
+    	try {
+			URI uri = new URI("http://localhost:8899/users/" + userId + "/logout");
+			URL url = uri.toURL();
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-	        // Enviar la solicitud
-	        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("Content-Type", "application/json");
+			connection.setDoOutput(true);
 
-	        // Manejo de la respuesta
-	        if (response.statusCode() == 200) {
-	            return objectMapper.readValue(response.body(), Map.class);
-	        } else if (response.statusCode() == 400) {
-	            throw new RuntimeException("Bad Request: Invalid arguments");
-	        } else if (response.statusCode() == 404) {
-	            throw new RuntimeException("Not Found: User or session not found");
-	        } else {
-	            throw new RuntimeException("Logout failed with status code: " + response.statusCode());
-	        }
-	    } catch (Exception e) {
-	        throw new RuntimeException("Error during logout", e);
-	    }
-	}
+			// Enviar el token en el cuerpo de la solicitud
+			String jsonInputString = "{\"token\": \"" + token + "\"}";
+
+			try (OutputStream os = connection.getOutputStream()) {
+				byte[] input = jsonInputString.getBytes("utf-8");
+				os.write(input, 0, input.length);
+			}
+
+			int responseCode = connection.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+				token = null;
+				return true;
+			} else {
+				return false;
+			}
+		} catch (Exception ex) {
+			return false;
+		}
+    }
 
 
 	@Override

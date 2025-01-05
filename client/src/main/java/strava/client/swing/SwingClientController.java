@@ -32,7 +32,7 @@ public class SwingClientController {
 		}
 	}
 
-    public Map<String, String> logout(String userId, String token) {
+    public boolean logout(String userId, String token) {
 		return serviceProxy.logout(userId, token);
 		}
 

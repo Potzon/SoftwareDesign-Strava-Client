@@ -55,10 +55,11 @@ public class SwingClientGUI extends JFrame{
         loginPanel.add(passwordLabel);
         loginPanel.add(passwordField);
         
-        JLabel externalLabel = new JLabel("External Provider:");
-        JTextField externalField = new JTextField("Facebook");
-        loginPanel.add(externalLabel);
-        loginPanel.add(externalField);
+        JLabel providerLabel = new JLabel("External Provider:");
+		String[] providers = { "Google", "Facebook" };
+		JComboBox<String> providerComboBox = new JComboBox<>(providers);
+		loginPanel.add(providerLabel);
+		loginPanel.add(providerComboBox);
 
         JButton loginButton = new JButton("Login");
         loginPanel.add(loginButton);
@@ -69,13 +70,14 @@ public class SwingClientGUI extends JFrame{
         loginButton.addActionListener(e -> {
             String email = emailField.getText();
             String password = new String(passwordField.getPassword());
-            String externalProv = externalField.getText();
+            String externalProv = providerComboBox.getSelectedItem().toString();
 
             try {
                 Credentials credentials = new Credentials(email, password, externalProv);
                 var response = controller.login(credentials);
                 userId = response.get("userId");
-                JOptionPane.showMessageDialog(loginFrame, "Login Successful");
+                token = response.get("token");
+                JOptionPane.showMessageDialog(loginFrame, "Login Successful:\nUser ID: " + userId + ", Token: " + token);
                 loginFrame.dispose();
                 openAPIMenuWindow(initialFrame);
             } catch (Exception ex) {
@@ -110,10 +112,14 @@ public class SwingClientGUI extends JFrame{
 
         logoutButton.addActionListener(e -> {
             try {
-                controller.logout(userId, token);
-                JOptionPane.showMessageDialog(menuFrame, "Logout Successful");
-                menuFrame.dispose();
-                initialFrame.setVisible(true);
+                boolean res = controller.logout(userId, token);
+				if (res) {
+					JOptionPane.showMessageDialog(menuFrame, "Logout Successful");
+					menuFrame.dispose();
+					initialFrame.setVisible(true);
+				} else {
+					JOptionPane.showMessageDialog(menuFrame, "Logout Failed");
+				}
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(menuFrame, "Error: " + ex.getMessage());
             }

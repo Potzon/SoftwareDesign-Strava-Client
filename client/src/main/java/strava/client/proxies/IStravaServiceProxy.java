@@ -14,7 +14,7 @@ public interface IStravaServiceProxy {
 	//user methods
     User user(User user);
     Map<String, String> login(Credentials credentials);
-    Map<String, String> logout(String userId, String token);
+    boolean logout(String userId, String token);
     
     //training sessions methods
     TrainingSession session(String userId, String token, String title, String sport, Double distance, Date startDate, Integer duration);
