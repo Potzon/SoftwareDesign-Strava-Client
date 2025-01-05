@@ -5,6 +5,7 @@ import java.util.List;
 
 
 public record User(
+		String userId,
 		String name,
 	    String email,
 	    String password,
@@ -14,6 +15,5 @@ public record User(
 	    Float maxHeartRate,
 	    Float restHeartRate,
 	    List<Challenge> acceptedChallenges,
-	    List<TrainingSession> trainingSessions) {
+	    List<TrainingSession> trainingSessions) {}
 
-}

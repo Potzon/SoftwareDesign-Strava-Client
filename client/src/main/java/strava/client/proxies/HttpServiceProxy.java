@@ -33,11 +33,37 @@ public class HttpServiceProxy implements IStravaServiceProxy{
         this.objectMapper = new ObjectMapper();
     }
     
-	@Override
-	public User user(User user) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public User user(User user) {
+        try {
+            // Convertir User a JSON
+            String userJson = objectMapper.writeValueAsString(user);
+            System.out.println("User JSON: " + userJson); 
+
+
+            // Crear solicitud HTTP
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/users/user"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(userJson))
+                .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient()
+            	    .send(request, HttpResponse.BodyHandlers.ofString());
+
+            System.out.println("Response code: " + response.statusCode());
+            System.out.println("Response body: " + response.body());
+
+            return switch (response.statusCode()) {
+			case 201 -> objectMapper.readValue(response.body(), User.class);
+            case 401 -> throw new RuntimeException("Unauthorized: Invalid credentials");
+            default -> throw new RuntimeException("Login failed with status code: " + response.statusCode());
+        };
+        } catch (Exception ex) {
+            throw new RuntimeException("Error during registration: " + ex.getMessage(), ex);
+        }
+    }
+
 
 	@SuppressWarnings("unchecked")
 	@Override

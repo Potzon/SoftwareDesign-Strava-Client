@@ -21,7 +21,7 @@ public class swingOld {
 	}
 
 	private static JFrame createInitialFrame() {
-		JFrame frame = new JFrame("API Client");
+		JFrame frame = new JFrame("OLD API Client");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(400, 200);
 
@@ -533,36 +533,36 @@ public class swingOld {
 
 		// Campos para el formulario
 		registerPanel.add(new JLabel("Email:"));
-		JTextField emailField = new JTextField();
-		registerPanel.add(emailField);
+ 		JTextField emailField = new JTextField("god@gmail.com");
+ 		registerPanel.add(emailField);
 
-		registerPanel.add(new JLabel("Password:"));
-		JPasswordField passwordField = new JPasswordField();
-		registerPanel.add(passwordField);
+ 		registerPanel.add(new JLabel("Password:"));
+ 		JPasswordField passwordField = new JPasswordField("123");
+ 		registerPanel.add(passwordField);
 
-		registerPanel.add(new JLabel("Name:"));
-		JTextField nameField = new JTextField();
-		registerPanel.add(nameField);
+ 		registerPanel.add(new JLabel("Name:"));
+ 		JTextField nameField = new JTextField("God");
+ 		registerPanel.add(nameField);
 
-		registerPanel.add(new JLabel("Birthdate (yyyy-MM-dd):"));
-		JTextField birthdateField = new JTextField();
-		registerPanel.add(birthdateField);
+ 		registerPanel.add(new JLabel("Birthdate (yyyy-MM-dd):"));
+ 		JTextField birthdateField = new JTextField("2004-02-29");
+ 		registerPanel.add(birthdateField);
 
-		registerPanel.add(new JLabel("Weight (kg):"));
-		JTextField weightField = new JTextField();
-		registerPanel.add(weightField);
+ 		registerPanel.add(new JLabel("Weight (kg):"));
+ 		JTextField weightField = new JTextField("50");
+ 		registerPanel.add(weightField);
 
-		registerPanel.add(new JLabel("Height (cm):"));
-		JTextField heightField = new JTextField();
-		registerPanel.add(heightField);
+ 		registerPanel.add(new JLabel("Height (cm):"));
+ 		JTextField heightField = new JTextField("180");
+ 		registerPanel.add(heightField);
 
-		registerPanel.add(new JLabel("Max Heart Rate:"));
-		JTextField maxHeartRateField = new JTextField();
-		registerPanel.add(maxHeartRateField);
+ 		registerPanel.add(new JLabel("Max Heart Rate:"));
+ 		JTextField maxHeartRateField = new JTextField("150");
+ 		registerPanel.add(maxHeartRateField);
 
-		registerPanel.add(new JLabel("Rest Heart Rate:"));
-		JTextField restHeartRateField = new JTextField();
-		registerPanel.add(restHeartRateField);
+ 		registerPanel.add(new JLabel("Rest Heart Rate:"));
+ 		JTextField restHeartRateField = new JTextField("81");
+ 		registerPanel.add(restHeartRateField);
 
 		JButton registerButton = new JButton("Register");
 		registerPanel.add(registerButton);
