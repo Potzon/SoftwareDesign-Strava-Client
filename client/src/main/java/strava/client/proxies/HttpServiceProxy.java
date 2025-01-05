@@ -64,36 +64,34 @@ public class HttpServiceProxy implements IStravaServiceProxy{
         }
 	}
 
-    @Override
-    public boolean logout(String userId, String token) {
-    	try {
-			URI uri = new URI("http://localhost:8899/users/" + userId + "/logout");
-			URL url = uri.toURL();
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+	@Override
+	public boolean logout(String userId, String token) {
+	    try {
+	        // Crear el cuerpo de la solicitud como JSON
+	        String jsonInputString = "{\"token\": \"" + token + "\"}";
+	        
+	        // Construir la solicitud HTTP
+	        HttpRequest request = HttpRequest.newBuilder()
+	            .uri(URI.create(BASE_URL + "/users/" + userId + "/logout"))
+	            .header("Content-Type", "application/json")
+	            .POST(HttpRequest.BodyPublishers.ofString(jsonInputString))
+	            .build();
 
-			connection.setRequestMethod("POST");
-			connection.setRequestProperty("Content-Type", "application/json");
-			connection.setDoOutput(true);
+	        // Enviar la solicitud y obtener la respuesta
+	        HttpResponse<Void> response = HttpClient.newHttpClient()
+	            .send(request, HttpResponse.BodyHandlers.discarding());
 
-			// Enviar el token en el cuerpo de la solicitud
-			String jsonInputString = "{\"token\": \"" + token + "\"}";
+	        // Verificar el código de respuesta
+	        if (response.statusCode() == 200) {
+	            return true;
+	        } else {
+	            return false;
+	        }
+	    } catch (Exception ex) {
+	        return false;
+	    }
+	}
 
-			try (OutputStream os = connection.getOutputStream()) {
-				byte[] input = jsonInputString.getBytes("utf-8");
-				os.write(input, 0, input.length);
-			}
-
-			int responseCode = connection.getResponseCode();
-			if (responseCode == HttpURLConnection.HTTP_OK) {
-				token = null;
-				return true;
-			} else {
-				return false;
-			}
-		} catch (Exception ex) {
-			return false;
-		}
-    }
 
 
 	@Override
