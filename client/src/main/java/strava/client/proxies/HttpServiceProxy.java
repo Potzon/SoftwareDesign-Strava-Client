@@ -291,7 +291,61 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 
 	@Override
 	public List<Challenge> challenges(Date startDate, Date endDate, String sport) {
-		return null;
+		try {
+
+	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	        String formattedStartDate = dateFormat.format(startDate);
+	        String formattedEndDate = dateFormat.format(endDate);
+	        
+	    	System.out.println(startDate + " " + endDate);
+	    	System.out.println(formattedStartDate + " " + formattedEndDate);
+	        // Construir la URL con los parámetros de consulta
+	        StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/challenges/challenges");
+	        
+	        boolean hasParams = false;
+	        if (startDate != null) {
+	            urlBuilder.append("?startDate=").append(formattedStartDate);
+	            hasParams = true;
+	        }
+	        if (endDate != null) {
+	            urlBuilder.append(hasParams ? "&" : "?").append("endDate=").append(formattedEndDate);
+	            hasParams = true;
+	        }
+	        if (sport != null) {
+	            urlBuilder.append(hasParams ? "&" : "?").append("sport=").append(sport);
+	        }
+
+	        HttpRequest request = HttpRequest.newBuilder()
+	            .uri(URI.create(urlBuilder.toString()))
+	            .header("Content-Type", "application/json")
+	            .GET()
+	            .build();
+
+	        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+	        if (response.statusCode() == 200) {
+	            // Parsear el cuerpo de la respuesta a una lista de sesiones
+	            List<Map<String, Object>> responseData = objectMapper.readValue(response.body(), List.class);
+	            List<Challenge> challenges = new ArrayList<>();
+	            for (Map<String, Object> challengeData : responseData) {
+	            	challenges.add(new Challenge(
+	                    (String) challengeData.get("challengeId"),
+	                    (String) challengeData.get("challengeName"),
+	                    objectMapper.convertValue(challengeData.get("startDate"), Date.class),
+	                    objectMapper.convertValue(challengeData.get("endDate"), Date.class),
+	                    ((Number) challengeData.get("targetTime")).intValue(),
+	                    ((Number) challengeData.get("targetDistance")).floatValue(),
+	                    (String) challengeData.get("sport"),
+	                    (String) challengeData.get("userId")
+	                ));
+	            }
+	            return challenges;
+	        } else {
+	            throw new RuntimeException("Error: " + response.statusCode() + " - " + response.body());
+	        }
+	    } catch (Exception e) {
+	        throw new RuntimeException("Error during challenges query", e);
+	    }
 	}
 
 	

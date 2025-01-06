@@ -2,8 +2,12 @@ package strava.client.swing;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -55,27 +59,49 @@ public class SwingClientGUI extends JFrame{
         loginFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         loginFrame.setSize(400, 300);
 
-        JPanel loginPanel = new JPanel(new GridLayout(5, 1));
+        // Usar GridBagLayout para los componentes
+        JPanel loginPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;  // Asegura que los componentes se estiren horizontalmente
+        gbc.insets = new Insets(5, 5, 5, 5);  // Espaciado entre componentes
 
+        // Componentes de la interfaz
         JLabel emailLabel = new JLabel("Email:");
         JTextField emailField = new JTextField("user1@example.com");
-        loginPanel.add(emailLabel);
-        loginPanel.add(emailField);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;  // El label y el campo de texto ocuparán dos columnas
+        loginPanel.add(emailLabel, gbc);
+        gbc.gridy = 1;
+        loginPanel.add(emailField, gbc);
 
         JLabel passwordLabel = new JLabel("Password:");
         JPasswordField passwordField = new JPasswordField("password123");
-        loginPanel.add(passwordLabel);
-        loginPanel.add(passwordField);
-        
+        gbc.gridy = 2;
+        loginPanel.add(passwordLabel, gbc);
+        gbc.gridy = 3;
+        loginPanel.add(passwordField, gbc);
+
         JLabel providerLabel = new JLabel("External Provider:");
-		String[] providers = { "Google", "Facebook" };
-		JComboBox<String> providerComboBox = new JComboBox<>(providers);
-		loginPanel.add(providerLabel);
-		loginPanel.add(providerComboBox);
+        gbc.gridy = 4;
+        loginPanel.add(providerLabel, gbc);
 
+        String[] providers = { "Google", "Facebook" };
+        JComboBox<String> providerComboBox = new JComboBox<>(providers);
+        gbc.gridy = 5;
+        loginPanel.add(providerComboBox, gbc);
+
+        // Centrar y hacer que el botón ocupe toda la fila
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        gbc.gridwidth = 2;  // El botón ocupará las dos columnas
+        gbc.weightx = 1.0;  // Hace que el botón ocupe todo el espacio horizontal disponible
+        gbc.weighty = 1.0;  // Hace que el botón ocupe todo el espacio vertical disponible
+        gbc.anchor = GridBagConstraints.CENTER;  // Centra el botón
         JButton loginButton = new JButton("Login");
-        loginPanel.add(loginButton);
+        loginPanel.add(loginButton, gbc);
 
+        // Ajustar constraints de la ventana
         loginFrame.add(loginPanel);
         loginFrame.setVisible(true);
 
@@ -111,6 +137,8 @@ public class SwingClientGUI extends JFrame{
             }
         });
     }
+
+
 
     private static void openAPIMenuWindow(JFrame initialFrame) {
         initialFrame.setVisible(false);
@@ -323,118 +351,124 @@ public class SwingClientGUI extends JFrame{
 	}
 	
 	private static void querySessions() {
-		JFrame createSessionsFrame = new JFrame("User Training Sessions");
-		createSessionsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		createSessionsFrame.setSize(500, 600);
-		createSessionsFrame.setLayout(new BorderLayout());
-
-		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new FlowLayout());
-
-		JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
-		startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
-		startDateSpinner.setValue(new Date());
-
-		JSpinner endDateSpinner = new JSpinner(new SpinnerDateModel());
-		endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
-		endDateSpinner.setValue(new Date());
-
-	JButton fetchButton = new JButton("Get Sessions");
-	
-	topPanel.add(new JLabel("Start Date:"));
-	topPanel.add(startDateSpinner);
-	topPanel.add(new JLabel("End Date:"));
-	topPanel.add(endDateSpinner);
-	topPanel.add(fetchButton);
-	DefaultListModel<String> listModel = new DefaultListModel<>();
-	JList<String> sessionList = new JList<>(listModel);
-	JScrollPane scrollPane = new JScrollPane(sessionList);
-
-	createSessionsFrame.add(topPanel, BorderLayout.NORTH);
-	createSessionsFrame.add(scrollPane, BorderLayout.CENTER);
-
-	fetchButton.addActionListener(e -> {
-	    listModel.clear();  // Limpiar la lista antes de actualizar
-	    try {
-	        Date startDate = (Date) startDateSpinner.getValue();
-	        Date endDate = (Date) endDateSpinner.getValue();
-	        
-	        List<TrainingSession> sessions = controller.sessions(userId, token, startDate, endDate);
-
-	        if (sessions.isEmpty()) {
-	            listModel.addElement("No sessions found in this interval.");
-	        } else {
-	            for (TrainingSession session : sessions) {
-	                String sessionInfo = String.format("%s - %s - %.2f km - %s",
-	                        session.title(), session.sport(), session.distance(), session.startDate());
-	                listModel.addElement(sessionInfo);
-	            }
-	        }
-	    } catch (Exception ex) {
-	        listModel.addElement("Error loading sessions: " + ex.getMessage());
-	    }
-	});
-	createSessionsFrame.setVisible(true);
-	}
-
-	/*
-	public static void querySessions() {
-	    // Mostrar el marco de las sesiones del usuario
 	    JFrame createSessionsFrame = new JFrame("User Training Sessions");
 	    createSessionsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	    createSessionsFrame.setSize(500, 600);
+	    createSessionsFrame.setSize(500, 300);
 	    createSessionsFrame.setLayout(new BorderLayout());
 
 	    JPanel topPanel = new JPanel();
-	    topPanel.setLayout(new FlowLayout());
+	    topPanel.setLayout(new GridBagLayout());
 
-	    // Botón para obtener las sesiones
+	    GridBagConstraints gbc = new GridBagConstraints();
+	    gbc.fill = GridBagConstraints.HORIZONTAL;
+	    gbc.insets = new Insets(5, 5, 5, 5);
+
+	    // Componentes
+	    JLabel startDateLabel = new JLabel("Start Date:");
+	    JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
+	    startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
+	    startDateSpinner.setValue(new Date());
+
+	    JLabel endDateLabel = new JLabel("End Date:");
+	    JSpinner endDateSpinner = new JSpinner(new SpinnerDateModel());
+	    endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
+	    endDateSpinner.setValue(new Date());
+
 	    JButton fetchButton = new JButton("Get Sessions");
 
-	    // Agregar el botón al panel superior
-	    topPanel.add(fetchButton);
+	    // Añadir componentes al topPanel usando GridBagConstraints
+	    gbc.gridx = 0;
+	    gbc.gridy = 0;
+	    topPanel.add(startDateLabel, gbc);
 
-	    // Modelo de la lista para mostrar las sesiones
-	    DefaultListModel<String> listModel = new DefaultListModel<>();
-	    JList<String> sessionList = new JList<>(listModel);
+	    gbc.gridx = 1;
+	    topPanel.add(startDateSpinner, gbc);
+
+	    gbc.gridx = 0;
+	    gbc.gridy = 1;
+	    topPanel.add(endDateLabel, gbc);
+
+	    gbc.gridx = 1;
+	    topPanel.add(endDateSpinner, gbc);
+
+	    gbc.gridx = 0;
+	    gbc.gridy = 2;
+	    gbc.gridwidth = 2;  // El botón debe ocupar las dos columnas
+	    topPanel.add(fetchButton, gbc);
+
+	    // Lista para mostrar las sesiones
+	    DefaultListModel<TrainingSession> listModel = new DefaultListModel<>();
+	    JList<TrainingSession> sessionList = new JList<>(listModel);
 	    JScrollPane scrollPane = new JScrollPane(sessionList);
 
+	    // Personalizar el renderizado de la lista (solo mostrar información específica)
+	    sessionList.setCellRenderer(new ListCellRenderer<TrainingSession>() {
+	        @Override
+	        public Component getListCellRendererComponent(JList<? extends TrainingSession> list, TrainingSession value, int index, boolean isSelected, boolean cellHasFocus) {
+	            JLabel label = new JLabel();
+	            if (value != null) {
+	                label.setText(String.format("%s - %s - %.2f km - %s", 
+	                        value.title(), value.sport(), value.distance(), value.startDate()));
+	            }
+	            label.setOpaque(true);
+	            if (isSelected) {
+	                label.setBackground(list.getSelectionBackground());
+	                label.setForeground(list.getSelectionForeground());
+	            } else {
+	                label.setBackground(list.getBackground());
+	                label.setForeground(list.getForeground());
+	            }
+	            return label;
+	        }
+	    });
+
+	    // Añadir panels al frame
 	    createSessionsFrame.add(topPanel, BorderLayout.NORTH);
 	    createSessionsFrame.add(scrollPane, BorderLayout.CENTER);
 
-	    // Acción cuando se presiona el botón "Get Sessions"
 	    fetchButton.addActionListener(e -> {
 	        listModel.clear();  // Limpiar la lista antes de actualizar
 	        try {
-	            // Establecer fechas por defecto
-	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	            Date startDate = sdf.parse("2020-01-01");  // Fecha de inicio por defecto (1 de enero de 2020)
-	            Date endDate = new Date();  // Fecha de finalización por defecto (la fecha actual)
+	            Date startDate = (Date) startDateSpinner.getValue();
+	            Date endDate = (Date) endDateSpinner.getValue();
 
-	            // Llamar al controlador para obtener las sesiones dentro del rango de fechas
-	            // Suponiendo que tienes un controlador con los métodos necesarios
 	            List<TrainingSession> sessions = controller.sessions(userId, token, startDate, endDate);
 
-	            // Verificar si hay sesiones y agregarlas a la lista
 	            if (sessions.isEmpty()) {
-	                listModel.addElement("No sessions found.");
+	                listModel.addElement(null);  // No sessions found
 	            } else {
 	                for (TrainingSession session : sessions) {
-	                    // Formatear la sesión a una cadena legible
-	                    String sessionInfo = String.format("%s - %s - %.2f km - %s",
-	                            session.title(), session.sport(), session.distance(), sdf.format(session.startDate()));
-	                    listModel.addElement(sessionInfo);
+	                    listModel.addElement(session); // Añadir el objeto TrainingSession
 	                }
 	            }
 	        } catch (Exception ex) {
-	            listModel.addElement("Error loading sessions: " + ex.getMessage());
+	            listModel.addElement(null);  // Error loading sessions
+	        }
+	    });
+
+	    // Agregar MouseListener para copiar el sessionId al portapapeles
+	    sessionList.addMouseListener(new MouseAdapter() {
+	        @Override
+	        public void mouseClicked(MouseEvent e) {
+	            int index = sessionList.locationToIndex(e.getPoint());
+	            if (index != -1) {
+	                TrainingSession selectedSession = listModel.getElementAt(index);
+	                if (selectedSession != null) {
+	                    String sessionId = selectedSession.sessionId();  // Obtener el sessionId
+	                    copySessionToClipboard(sessionId);
+	                }
+	            }
 	        }
 	    });
 
 	    createSessionsFrame.setVisible(true);
-	}*/
+	}
 
-
+	private static void copySessionToClipboard(String sessionId) {
+	    StringSelection stringSelection = new StringSelection(sessionId);
+	    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	    clipboard.setContents(stringSelection, null);
+	}
     
 
 
@@ -519,7 +553,138 @@ public class SwingClientGUI extends JFrame{
 	}
 	
 	private static void queryChallenges() {
-    }
+	    JFrame createChallengesFrame = new JFrame("User's Challenges");
+	    createChallengesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    createChallengesFrame.setSize(500, 300);
+	    createChallengesFrame.setLayout(new BorderLayout());
+
+	    JPanel topPanel = new JPanel();
+	    topPanel.setLayout(new GridBagLayout());
+
+	    GridBagConstraints gbc = new GridBagConstraints();
+	    gbc.fill = GridBagConstraints.HORIZONTAL;
+	    gbc.insets = new Insets(5, 5, 5, 5);
+
+	    // Componentes
+	    JLabel startDateLabel = new JLabel("Start Date:");
+	    JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
+	    startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
+	    startDateSpinner.setValue(new Date());
+
+	    JLabel endDateLabel = new JLabel("End Date:");
+	    JSpinner endDateSpinner = new JSpinner(new SpinnerDateModel());
+	    endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
+	    endDateSpinner.setValue(new Date());
+
+	    JLabel sportLabel = new JLabel("Sport:");
+	    JTextField sportField = new JTextField("Running");
+
+	    JButton fetchButton = new JButton("Get Sessions");
+
+	    gbc.gridx = 0;
+	    gbc.gridy = 0;
+	    topPanel.add(startDateLabel, gbc);
+
+	    gbc.gridx = 1;
+	    topPanel.add(startDateSpinner, gbc);
+
+	    gbc.gridx = 0;
+	    gbc.gridy = 1;
+	    topPanel.add(endDateLabel, gbc);
+
+	    gbc.gridx = 1;
+	    topPanel.add(endDateSpinner, gbc);
+
+	    gbc.gridx = 0;
+	    gbc.gridy = 2;
+	    topPanel.add(sportLabel, gbc);
+
+	    gbc.gridx = 1;
+	    topPanel.add(sportField, gbc);
+
+	    gbc.gridx = 0;
+	    gbc.gridy = 3;
+	    gbc.gridwidth = 2;  // El botón debe ocupar las dos columnas
+	    topPanel.add(fetchButton, gbc);
+
+	    // Lista para mostrar las sesiones
+	    DefaultListModel<Challenge> listModel = new DefaultListModel<>();
+	    JList<Challenge> sessionList = new JList<>(listModel);
+	    JScrollPane scrollPane = new JScrollPane(sessionList);
+
+	    // Personalizar el renderizado de la lista (solo mostrar información específica)
+	    sessionList.setCellRenderer(new ListCellRenderer<Challenge>() {
+	        @Override
+	        public Component getListCellRendererComponent(JList<? extends Challenge> list, Challenge value, int index, boolean isSelected, boolean cellHasFocus) {
+	            JLabel label = new JLabel();
+	            if (value != null) {
+	                label.setText(String.format("%s - %s - %.2f km - %s", 
+	                        value.challengeName(), value.sport(), value.targetDistance(), value.startDate()));
+	            }
+	            label.setOpaque(true);
+	            if (isSelected) {
+	                label.setBackground(list.getSelectionBackground());
+	                label.setForeground(list.getSelectionForeground());
+	            } else {
+	                label.setBackground(list.getBackground());
+	                label.setForeground(list.getForeground());
+	            }
+	            return label;
+	        }
+	    });
+
+	    // Añadir panels al frame
+	    createChallengesFrame.add(topPanel, BorderLayout.NORTH);
+	    createChallengesFrame.add(scrollPane, BorderLayout.CENTER);
+
+	    fetchButton.addActionListener(e -> {
+	        listModel.clear();  // Limpiar la lista antes de actualizar
+	        try {
+	            Date startDate = (Date) startDateSpinner.getValue();
+	            Date endDate = (Date) endDateSpinner.getValue();
+	            String sport = sportField.getText();
+	            
+	            List<Challenge> challenges = controller.challenges(startDate, endDate, sport);
+
+	            if (challenges.isEmpty()) {
+	                listModel.addElement(null);  // No challenges found
+	            } else {
+	                for (Challenge challenge : challenges) {
+	                    listModel.addElement(challenge); // Añadir el objeto Challenge
+	                }
+	            }
+	        } catch (Exception ex) {
+	            listModel.addElement(null);  // Error loading challenges
+	        }
+	    });
+
+	    // Agregar MouseListener para copiar el challengeId al portapapeles
+	    sessionList.addMouseListener(new MouseAdapter() {
+	        @Override
+	        public void mouseClicked(MouseEvent e) {
+	            int index = sessionList.locationToIndex(e.getPoint());
+	            if (index != -1) {
+	                Challenge selectedChallenge = listModel.getElementAt(index);
+	                if (selectedChallenge != null) {
+	                    String challengeId = selectedChallenge.challengeId();  // Obtener el challengeId
+	                    copyChallengeToClipboard(challengeId);
+	                }
+	            }
+	        }
+	    });
+
+	    createChallengesFrame.setVisible(true);
+	}
+
+	private static void copyChallengeToClipboard(String challengeId) {
+	    StringSelection stringSelection = new StringSelection(challengeId);
+	    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	    clipboard.setContents(stringSelection, null);
+	}
+
+
+    
+
 	
 	private static void addChallenge() {
 		// TODO Auto-generated method stub
