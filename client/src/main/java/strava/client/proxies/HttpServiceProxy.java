@@ -181,22 +181,29 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 	public List<TrainingSession> sessions(String userId, String token, Date startDate, Date endDate) {
 	    try {
 	        // Crear los parámetros de la consulta
-	        StringBuilder uri = new StringBuilder(BASE_URL + "/users/"+userId+"/sessions");
-	        
+	        StringBuilder uri = new StringBuilder(BASE_URL + "/users/" + userId + "/sessions");
+
 	        // Agregar los parámetros de fecha si están presentes
 	        boolean hasParams = false;
+	        
+	        // Solo agregar el startDate si se pasa como parámetro
 	        if (startDate != null) {
 	            uri.append("?startDate=").append(URLEncoder.encode(formatDate(startDate), "UTF-8"));
-	            hasParams = true;
+	            hasParams = true; // Indicamos que ya tenemos un parámetro
 	        }
+	        
+	        // Si endDate también es proporcionado, agregarlo como parámetro adicional
 	        if (endDate != null) {
 	            if (hasParams) {
-	                uri.append("&");
+	                uri.append("&"); // Si ya tenemos parámetros, agregamos un '&'
 	            } else {
-	                uri.append("?");
+	                uri.append("?"); // Si no tenemos parámetros aún, comenzamos con un '?'
 	            }
 	            uri.append("endDate=").append(URLEncoder.encode(formatDate(endDate), "UTF-8"));
 	        }
+
+	        // Mostrar la URL generada para depuración
+	        System.out.println("Request URL: " + uri.toString());
 
 	        // Construir la solicitud HTTP
 	        HttpRequest request = HttpRequest.newBuilder()
@@ -205,14 +212,17 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 	            .header("Authorization", "Bearer " + token)  // Usar token en el header Authorization
 	            .GET()
 	            .build();
-
+	        
 	        // Enviar la solicitud
 	        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
 	        // Manejo de la respuesta
 	        if (response.statusCode() == 200) { // OK
+	            List<TrainingSession> sessions = objectMapper.readValue(response.body(),
+	                objectMapper.getTypeFactory().constructCollectionType(List.class, TrainingSession.class));
 	            // Convertir la respuesta JSON a una lista de TrainingSession
-	            return objectMapper.readValue(response.body(), objectMapper.getTypeFactory().constructCollectionType(List.class, TrainingSession.class));
+	            System.out.println("Response Body: " + response.body());
+	            return sessions;
 	        } else if (response.statusCode() == 400) {
 	            throw new RuntimeException("Bad Request: Invalid token or parameters");
 	        } else if (response.statusCode() == 404) {
@@ -224,10 +234,12 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 	        throw new RuntimeException("Error during session query", e);
 	    }
 	}
+
 	private String formatDate(Date date) {
 	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	    return sdf.format(date);
 	}
+
 
 
 	@Override

@@ -2,6 +2,8 @@ package strava.client.swing;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -14,7 +16,7 @@ import strava.client.data.Challenge;
 import strava.client.data.Credentials;
 import strava.client.data.TrainingSession;
 import strava.client.data.User;
-
+import java.util.List;
 public class SwingClientGUI extends JFrame{
     private static SwingClientController controller = new SwingClientController();
     private static String userId;
@@ -321,8 +323,119 @@ public class SwingClientGUI extends JFrame{
 	}
 	
 	private static void querySessions() {
-		// TODO Auto-generated method stub
+		JFrame createSessionsFrame = new JFrame("User Training Sessions");
+		createSessionsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		createSessionsFrame.setSize(500, 600);
+		createSessionsFrame.setLayout(new BorderLayout());
+
+		JPanel topPanel = new JPanel();
+		topPanel.setLayout(new FlowLayout());
+
+		JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
+		startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
+		startDateSpinner.setValue(new Date());
+
+		JSpinner endDateSpinner = new JSpinner(new SpinnerDateModel());
+		endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
+		endDateSpinner.setValue(new Date());
+
+	JButton fetchButton = new JButton("Get Sessions");
+	
+	topPanel.add(new JLabel("Start Date:"));
+	topPanel.add(startDateSpinner);
+	topPanel.add(new JLabel("End Date:"));
+	topPanel.add(endDateSpinner);
+	topPanel.add(fetchButton);
+	DefaultListModel<String> listModel = new DefaultListModel<>();
+	JList<String> sessionList = new JList<>(listModel);
+	JScrollPane scrollPane = new JScrollPane(sessionList);
+
+	createSessionsFrame.add(topPanel, BorderLayout.NORTH);
+	createSessionsFrame.add(scrollPane, BorderLayout.CENTER);
+
+	fetchButton.addActionListener(e -> {
+	    listModel.clear();  // Limpiar la lista antes de actualizar
+	    try {
+	        Date startDate = (Date) startDateSpinner.getValue();
+	        Date endDate = (Date) endDateSpinner.getValue();
+
+	        List<TrainingSession> sessions = controller.sessions(userId, token, startDate, endDate);
+
+	        if (sessions.isEmpty()) {
+	            listModel.addElement("No sessions found in this interval.");
+	        } else {
+	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	            for (TrainingSession session : sessions) {
+	                String sessionInfo = String.format("%s - %s - %.2f km - %s",
+	                        session.title(), session.sport(), session.distance(), sdf.format(session.startDate()));
+	                listModel.addElement(sessionInfo);
+	            }
+	        }
+	    } catch (Exception ex) {
+	        listModel.addElement("Error loading sessions: " + ex.getMessage());
+	    }
+	});
+	createSessionsFrame.setVisible(true);
 	}
+
+	/*
+	public static void querySessions() {
+	    // Mostrar el marco de las sesiones del usuario
+	    JFrame createSessionsFrame = new JFrame("User Training Sessions");
+	    createSessionsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    createSessionsFrame.setSize(500, 600);
+	    createSessionsFrame.setLayout(new BorderLayout());
+
+	    JPanel topPanel = new JPanel();
+	    topPanel.setLayout(new FlowLayout());
+
+	    // Botón para obtener las sesiones
+	    JButton fetchButton = new JButton("Get Sessions");
+
+	    // Agregar el botón al panel superior
+	    topPanel.add(fetchButton);
+
+	    // Modelo de la lista para mostrar las sesiones
+	    DefaultListModel<String> listModel = new DefaultListModel<>();
+	    JList<String> sessionList = new JList<>(listModel);
+	    JScrollPane scrollPane = new JScrollPane(sessionList);
+
+	    createSessionsFrame.add(topPanel, BorderLayout.NORTH);
+	    createSessionsFrame.add(scrollPane, BorderLayout.CENTER);
+
+	    // Acción cuando se presiona el botón "Get Sessions"
+	    fetchButton.addActionListener(e -> {
+	        listModel.clear();  // Limpiar la lista antes de actualizar
+	        try {
+	            // Establecer fechas por defecto
+	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	            Date startDate = sdf.parse("2020-01-01");  // Fecha de inicio por defecto (1 de enero de 2020)
+	            Date endDate = new Date();  // Fecha de finalización por defecto (la fecha actual)
+
+	            // Llamar al controlador para obtener las sesiones dentro del rango de fechas
+	            // Suponiendo que tienes un controlador con los métodos necesarios
+	            List<TrainingSession> sessions = controller.sessions(userId, token, startDate, endDate);
+
+	            // Verificar si hay sesiones y agregarlas a la lista
+	            if (sessions.isEmpty()) {
+	                listModel.addElement("No sessions found.");
+	            } else {
+	                for (TrainingSession session : sessions) {
+	                    // Formatear la sesión a una cadena legible
+	                    String sessionInfo = String.format("%s - %s - %.2f km - %s",
+	                            session.title(), session.sport(), session.distance(), sdf.format(session.startDate()));
+	                    listModel.addElement(sessionInfo);
+	                }
+	            }
+	        } catch (Exception ex) {
+	            listModel.addElement("Error loading sessions: " + ex.getMessage());
+	        }
+	    });
+
+	    createSessionsFrame.setVisible(true);
+	}*/
+
+
     
 
 
@@ -407,8 +520,7 @@ public class SwingClientGUI extends JFrame{
 	}
 	
 	private static void queryChallenges() {
-		// TODO Auto-generated method stub
-	}
+    }
 	
 	private static void addChallenge() {
 		// TODO Auto-generated method stub
