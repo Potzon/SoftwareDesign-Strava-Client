@@ -17,11 +17,11 @@ public interface IStravaServiceProxy {
     boolean logout(String userId, String token);
     
     //training sessions methods
-    TrainingSession session(String userId, String token, String title, String sport, Double distance, Date startDate, Integer duration);
+    TrainingSession session(String userId, String token, String title, String sport, Float distance, Date startDate, Float duration);
     List<TrainingSession> sessions(String UserId, String token, Date startDate, Date endDate);
     
     //challenge methods
-    Challenge challenge(String userId, String token, String challengeName, Date startDate, Date endDate, Double targetTime, Double targetDistance, String sport);
+    Challenge challenge(String userId, String token, String challengeName, Date startDate, Date endDate, int targetTime, Float targetDistance, String sport);
     List<Challenge> challenges(Date startDate, Date endDate, String sport);
     List<Challenge> challengeParticipant(String challengeId, String userId, String token);
     Map<String, Float> challengeStatus(String userId, String token);

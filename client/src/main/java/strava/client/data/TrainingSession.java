@@ -3,7 +3,8 @@ package strava.client.data;
 import java.util.Date;
 
 public record TrainingSession(
-		String token,
+		String sessionId,
+		String userId,
 	    String title,
 	    String sport,
 	    Float distance,

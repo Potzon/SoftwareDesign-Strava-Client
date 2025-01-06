@@ -121,8 +121,8 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 
 
 	@Override
-	public TrainingSession session(String userId, String token, String title, String sport, Double distance,
-	        Date startDate, Integer duration) {
+	public TrainingSession session(String userId, String token, String title, String sport, Float distance,
+	        Date startDate, Float duration) {
 	    try {
 	        // Crear el DTO con los datos de la sesión
 	        Map<String, Object> sessionData = Map.of(
@@ -136,21 +136,34 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 
 	        // Serializar el DTO a JSON
 	        String sessionJson = objectMapper.writeValueAsString(sessionData);
-
+	        System.out.println("Session JSON: " + sessionData); 
+	        
 	        // Construir la solicitud HTTP
 	        HttpRequest request = HttpRequest.newBuilder()
-	            .uri(URI.create(BASE_URL + "/users/" + userId + "/session"))
+	            .uri(URI.create(BASE_URL + "/sessions/users/" + userId + "/session"))
 	            .header("Content-Type", "application/json")
 	            .POST(HttpRequest.BodyPublishers.ofString(sessionJson))
 	            .build();
 
 	        // Enviar la solicitud
 	        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+	        
+
+            System.out.println("Response code: " + response.statusCode());
+            System.out.println("Response body: " + response.body());
 
 	        // Manejo de la respuesta
 	        if (response.statusCode() == 201) { // Created
-	            // Convertir la respuesta JSON al objeto TrainingSession
-	            return objectMapper.readValue(response.body(), TrainingSession.class);
+	        	Map<String, Object> responseData = objectMapper.readValue(response.body(), Map.class);
+	            return new TrainingSession(
+	                (String) responseData.get("sessionId"),
+	                userId,
+	                (String) responseData.get("title"),
+	                (String) responseData.get("sport"),
+	                ((Number) responseData.get("distance")).floatValue(),
+	                objectMapper.convertValue(responseData.get("startDate"), Date.class),
+	                ((Number) responseData.get("duration")).floatValue()
+	            );
 	        } else if (response.statusCode() == 400) {
 	            throw new RuntimeException("Bad Request: Invalid session data");
 	        } else if (response.statusCode() == 404) {
@@ -219,48 +232,53 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 
 	@Override
 	public Challenge challenge(String userId, String token, String challengeName, Date startDate, Date endDate,
-	                           Double targetTime, Double targetDistance, String sport) {
-	    try {
-	        URI uri = URI.create(BASE_URL + "/challenges/users/" + userId + "/challenge");
-	        String jsonBody = """
-	            {
-	                "token": "%s",
-	                "challengeName": "%s",
-	                "startDate": "%s",
-	                "endDate": "%s",
-	                "targetTime": %.2f,
-	                "targetDistance": %.2f,
-	                "sport": "%s"
-	            }
-	            """.formatted(
-	            token,
-	            challengeName,
-	            formatDate(startDate),
-	            formatDate(endDate),
-	            targetTime,
-	            targetDistance,
-	            sport
+			int targetTime, Float targetDistance, String sport) {
+		try {
+	        Map<String, Object> challengeData = Map.of(
+	            "token", token,
+	            "challengeName", challengeName,
+	            "startDate", startDate,
+	            "endDate", endDate,
+	            "targetTime", targetTime,
+	            "targetDistance", targetDistance,
+	            "sport", sport
 	        );
 
+	        String challengeJson = objectMapper.writeValueAsString(challengeData);
+	        System.out.println("Challenge JSON: " + challengeData);
+
 	        HttpRequest request = HttpRequest.newBuilder()
-	                .uri(uri)
-	                .header("Content-Type", "application/json")
-	                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-	                .build();
+	            .uri(URI.create(BASE_URL + "/challenges/users/" + userId + "/challenge"))
+	            .header("Content-Type", "application/json")
+	            .POST(HttpRequest.BodyPublishers.ofString(challengeJson))
+	            .build();
 
 	        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-	        switch (response.statusCode()) {
-	            case 201 -> {
-	                return objectMapper.readValue(response.body(), Challenge.class);
-	            }
-	            case 400 -> throw new RuntimeException("Bad Request: Invalid challenge data");
-	            case 404 -> throw new RuntimeException("Not Found: User not found");
-	            case 500 -> throw new RuntimeException("Internal server error while creating the challenge");
-	            default -> throw new RuntimeException("Failed to create challenge. Status code: " + response.statusCode());
+	        System.out.println("Response code: " + response.statusCode());
+	        System.out.println("Response body: " + response.body());
+
+	        if (response.statusCode() == 201) { // Created
+	            Map<String, Object> responseData = objectMapper.readValue(response.body(), Map.class);
+	            return new Challenge(
+	                (String) responseData.get("challengeId"),
+	                (String) responseData.get("challengeName"),
+	                objectMapper.convertValue(responseData.get("startDate"), Date.class),
+	                objectMapper.convertValue(responseData.get("endDate"), Date.class),
+	                (Integer) responseData.get("targetTime"),
+	                ((Number) responseData.get("targetDistance")).floatValue(),
+	                (String) responseData.get("sport"),
+	                userId
+	            );
+	        } else if (response.statusCode() == 400) {
+	            throw new RuntimeException("Bad Request: Invalid challenge data");
+	        } else if (response.statusCode() == 404) {
+	            throw new RuntimeException("Not Found: User not found");
+	        } else {
+	            throw new RuntimeException("Failed to create challenge with status code: " + response.statusCode());
 	        }
-	    } catch (IOException | InterruptedException e) {
-	        throw new RuntimeException("Error while creating the challenge", e);
+	    } catch (Exception e) {
+	        throw new RuntimeException("Error during challenge creation", e);
 	    }
 	}
 

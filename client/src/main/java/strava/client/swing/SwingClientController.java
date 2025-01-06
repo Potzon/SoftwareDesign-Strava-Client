@@ -36,8 +36,8 @@ public class SwingClientController {
 		return serviceProxy.logout(userId, token);
 		}
 
-    public TrainingSession session(String userId, String token, String title, String sport, Double distance,
-			Date startDate, Integer duration) {
+    public TrainingSession session(String userId, String token, String title, String sport, Float distance,
+			Date startDate, Float duration) {
 		return serviceProxy.session(userId, token, title, sport, distance, startDate, duration);
 	}
 
@@ -46,7 +46,7 @@ public class SwingClientController {
 	}
 
 	public Challenge challenge(String userId, String token, String challengeName, Date startDate, Date endDate,
-			Double targetTime, Double targetDistance, String sport) {
+			int targetTime, Float targetDistance, String sport) {
 		return serviceProxy.challenge(userId, token, challengeName, startDate, endDate, targetTime, targetDistance, sport);
 	}
 
