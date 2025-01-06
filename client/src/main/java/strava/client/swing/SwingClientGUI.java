@@ -303,7 +303,7 @@ public class SwingClientGUI extends JFrame{
 
 	                // Validación de la respuesta
 				 if (response == null || response.sessionId() == null || 
-				    response.sessionId().isEmpty() || response.userId() == null || response.userId().isEmpty() ||
+				    response.sessionId().isEmpty() ||
 					response.title() == null || response.title().isEmpty() || response.sport() == null || response.sport().isEmpty() ||
 					response.distance() == null || response.distance() <= 0 || response.startDate() == null || response.duration() == null || response.duration() <= 0)  {
 	                    JOptionPane.showMessageDialog(createSessionFrame, "Error: Invalid Server Response.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -358,16 +358,15 @@ public class SwingClientGUI extends JFrame{
 	    try {
 	        Date startDate = (Date) startDateSpinner.getValue();
 	        Date endDate = (Date) endDateSpinner.getValue();
-
+	        
 	        List<TrainingSession> sessions = controller.sessions(userId, token, startDate, endDate);
 
 	        if (sessions.isEmpty()) {
 	            listModel.addElement("No sessions found in this interval.");
 	        } else {
-	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	            for (TrainingSession session : sessions) {
 	                String sessionInfo = String.format("%s - %s - %.2f km - %s",
-	                        session.title(), session.sport(), session.distance(), sdf.format(session.startDate()));
+	                        session.title(), session.sport(), session.distance(), session.startDate());
 	                listModel.addElement(sessionInfo);
 	            }
 	        }

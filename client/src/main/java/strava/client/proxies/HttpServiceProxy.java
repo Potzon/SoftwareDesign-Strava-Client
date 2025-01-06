@@ -11,6 +11,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -157,7 +158,6 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 	        	Map<String, Object> responseData = objectMapper.readValue(response.body(), Map.class);
 	            return new TrainingSession(
 	                (String) responseData.get("sessionId"),
-	                userId,
 	                (String) responseData.get("title"),
 	                (String) responseData.get("sport"),
 	                ((Number) responseData.get("distance")).floatValue(),
@@ -180,65 +180,58 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 	@Override
 	public List<TrainingSession> sessions(String userId, String token, Date startDate, Date endDate) {
 	    try {
-	        // Crear los parámetros de la consulta
-	        StringBuilder uri = new StringBuilder(BASE_URL + "/users/" + userId + "/sessions");
 
-	        // Agregar los parámetros de fecha si están presentes
+	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	        String formattedStartDate = dateFormat.format(startDate);
+	        String formattedEndDate = dateFormat.format(endDate);
+	        
+	    	System.out.println(startDate + " " + endDate);
+	    	System.out.println(formattedStartDate + " " + formattedEndDate);
+	        // Construir la URL con los parámetros de consulta
+	        StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/sessions/users/" + userId + "/sessions");
+	        
 	        boolean hasParams = false;
-	        
-	        // Solo agregar el startDate si se pasa como parámetro
 	        if (startDate != null) {
-	            uri.append("?startDate=").append(URLEncoder.encode(formatDate(startDate), "UTF-8"));
-	            hasParams = true; // Indicamos que ya tenemos un parámetro
+	            urlBuilder.append("?startDate=").append(formattedStartDate);
+	            hasParams = true;
 	        }
-	        
-	        // Si endDate también es proporcionado, agregarlo como parámetro adicional
 	        if (endDate != null) {
-	            if (hasParams) {
-	                uri.append("&"); // Si ya tenemos parámetros, agregamos un '&'
-	            } else {
-	                uri.append("?"); // Si no tenemos parámetros aún, comenzamos con un '?'
-	            }
-	            uri.append("endDate=").append(URLEncoder.encode(formatDate(endDate), "UTF-8"));
+	            urlBuilder.append(hasParams ? "&" : "?").append("endDate=").append(formattedEndDate);
 	        }
 
-	        // Mostrar la URL generada para depuración
-	        System.out.println("Request URL: " + uri.toString());
-
-	        // Construir la solicitud HTTP
 	        HttpRequest request = HttpRequest.newBuilder()
-	            .uri(URI.create(uri.toString()))
+	            .uri(URI.create(urlBuilder.toString()))
 	            .header("Content-Type", "application/json")
-	            .header("Authorization", "Bearer " + token)  // Usar token en el header Authorization
-	            .GET()
+	            .method("GET", HttpRequest.BodyPublishers.ofString(String.valueOf(token))) 
 	            .build();
-	        
-	        // Enviar la solicitud
+
 	        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-	        // Manejo de la respuesta
-	        if (response.statusCode() == 200) { // OK
-	            List<TrainingSession> sessions = objectMapper.readValue(response.body(),
-	                objectMapper.getTypeFactory().constructCollectionType(List.class, TrainingSession.class));
-	            // Convertir la respuesta JSON a una lista de TrainingSession
-	            System.out.println("Response Body: " + response.body());
+	        if (response.statusCode() == 200) {
+	            // Parsear el cuerpo de la respuesta a una lista de sesiones
+	            List<Map<String, Object>> responseData = objectMapper.readValue(response.body(), List.class);
+	            List<TrainingSession> sessions = new ArrayList<>();
+	            for (Map<String, Object> sessionData : responseData) {
+	                sessions.add(new TrainingSession(
+	                    (String) sessionData.get("sessionId"),
+	                    (String) sessionData.get("title"),
+	                    (String) sessionData.get("sport"),
+	                    ((Number) sessionData.get("distance")).floatValue(),
+	                    objectMapper.convertValue(sessionData.get("startDate"), Date.class),
+	                    ((Number) sessionData.get("duration")).floatValue()
+	                ));
+	            }
 	            return sessions;
-	        } else if (response.statusCode() == 400) {
-	            throw new RuntimeException("Bad Request: Invalid token or parameters");
-	        } else if (response.statusCode() == 404) {
-	            throw new RuntimeException("Not Found: User not found");
 	        } else {
-	            throw new RuntimeException("Failed to retrieve sessions with status code: " + response.statusCode());
+	            throw new RuntimeException("Error: " + response.statusCode() + " - " + response.body());
 	        }
 	    } catch (Exception e) {
-	        throw new RuntimeException("Error during session query", e);
+	        throw new RuntimeException("Error during sessions query", e);
 	    }
 	}
 
-	private String formatDate(Date date) {
-	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	    return sdf.format(date);
-	}
+
+
 
 
 
@@ -298,41 +291,7 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 
 	@Override
 	public List<Challenge> challenges(Date startDate, Date endDate, String sport) {
-	    try {
-	        StringBuilder uri = new StringBuilder(BASE_URL + "/challenges");
-	        boolean hasParams = false;
-	        if (startDate != null) {
-	            uri.append("?startDate=").append(URLEncoder.encode(formatDate(startDate), "UTF-8"));
-	            hasParams = true;
-	        }
-	        if (endDate != null) {
-	            uri.append(hasParams ? "&" : "?");
-	            uri.append("endDate=").append(URLEncoder.encode(formatDate(endDate), "UTF-8"));
-	            hasParams = true;
-	        }
-	        if (sport != null && !sport.isEmpty()) {
-	            uri.append(hasParams ? "&" : "?");
-	            uri.append("sport=").append(URLEncoder.encode(sport, "UTF-8"));
-	        }
-	        
-	        HttpRequest request = HttpRequest.newBuilder()
-	            .uri(URI.create(uri.toString()))
-	            .header("Content-Type", "application/json")
-	            .GET()
-	            .build();
-	        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-	        return switch (response.statusCode()) {
-	            case 200 -> objectMapper.readValue(
-	                    response.body(),
-	                    objectMapper.getTypeFactory().constructCollectionType(List.class, Challenge.class)
-	            );
-	            case 204 -> throw new RuntimeException("No Content: No challenges found");
-	            case 500 -> throw new RuntimeException("Internal server error while fetching challenges");
-	            default -> throw new RuntimeException("Failed to fetch challenges with status code: " + response.statusCode());
-	        };
-	    } catch (IOException | InterruptedException e) {
-	        throw new RuntimeException("Error while fetching challenges", e);
-	    }
+		return null;
 	}
 
 	
