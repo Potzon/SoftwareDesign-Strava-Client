@@ -703,112 +703,54 @@ public class SwingClientGUI extends JFrame{
 	
 	
 	private static void challengesStatus() {
-		JFrame createChallengesFrame = new JFrame("Search Challenges");
-	    createChallengesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	    createChallengesFrame.setSize(500, 300);
-	    createChallengesFrame.setLayout(new BorderLayout());
+	    JFrame challengeStatusFrame = new JFrame("Challenge Status");
+	    challengeStatusFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    challengeStatusFrame.setSize(400, 300);
 
-	    JPanel topPanel = new JPanel();
-	    topPanel.setLayout(new GridBagLayout());
+	    JPanel panel = new JPanel(new GridLayout(4, 2));
 
-	    GridBagConstraints gbc = new GridBagConstraints();
-	    gbc.fill = GridBagConstraints.HORIZONTAL;
-	    gbc.insets = new Insets(5, 5, 5, 5);
+	    // Input fields
+	    panel.add(new JLabel("User ID:"));
+	    JTextField userIdField = new JTextField(userId);
+	    panel.add(userIdField);
 
-	    // Componentes
-	    JLabel startDateLabel = new JLabel("Start Date:");
-	    JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
-	    startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
-	    startDateSpinner.setValue(new Date());
+	    panel.add(new JLabel("Token:"));
+	    JTextField tokenField = new JTextField(token);
+	    panel.add(tokenField);
 
-	    JLabel endDateLabel = new JLabel("End Date:");
-	    JSpinner endDateSpinner = new JSpinner(new SpinnerDateModel());
-	    endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
-	    endDateSpinner.setValue(new Date());
+	    JButton fetchStatusButton = new JButton("Fetch Challenge Status");
+	    panel.add(fetchStatusButton);
 
-	    JLabel sportLabel = new JLabel("Sport:");
-	    JTextField sportField = new JTextField("Running");
+	    challengeStatusFrame.add(panel);
+	    challengeStatusFrame.setVisible(true);
 
-	    JButton fetchButton = new JButton("Get Challenges");
+	    fetchStatusButton.addActionListener(e -> {
+	        String userId = userIdField.getText();
+	        String token = tokenField.getText();
 
-	    gbc.gridx = 0;
-	    gbc.gridy = 0;
-	    topPanel.add(startDateLabel, gbc);
-
-	    gbc.gridx = 1;
-	    topPanel.add(startDateSpinner, gbc);
-
-	    gbc.gridx = 0;
-	    gbc.gridy = 1;
-	    topPanel.add(endDateLabel, gbc);
-
-	    gbc.gridx = 1;
-	    topPanel.add(endDateSpinner, gbc);
-
-	    gbc.gridx = 0;
-	    gbc.gridy = 2;
-	    topPanel.add(sportLabel, gbc);
-
-	    gbc.gridx = 1;
-	    topPanel.add(sportField, gbc);
-
-	    gbc.gridx = 0;
-	    gbc.gridy = 3;
-	    gbc.gridwidth = 2;  // El botón debe ocupar las dos columnas
-	    topPanel.add(fetchButton, gbc);
-
-	    // Lista para mostrar las sesiones
-	    DefaultListModel<Challenge> listModel = new DefaultListModel<>();
-	    JList<Challenge> sessionList = new JList<>(listModel);
-	    JScrollPane scrollPane = new JScrollPane(sessionList);
-
-	    // Personalizar el renderizado de la lista (solo mostrar información específica)
-	    sessionList.setCellRenderer(new ListCellRenderer<Challenge>() {
-	        @Override
-	        public Component getListCellRendererComponent(JList<? extends Challenge> list, Challenge value, int index, boolean isSelected, boolean cellHasFocus) {
-	            JLabel label = new JLabel();
-	            if (value != null) {
-	                label.setText(String.format("%s - %s - %.2f km - %s", 
-	                        value.challengeName(), value.sport(), value.targetDistance(), value.startDate()));
-	            }
-	            label.setOpaque(true);
-	            if (isSelected) {
-	                label.setBackground(list.getSelectionBackground());
-	                label.setForeground(list.getSelectionForeground());
-	            } else {
-	                label.setBackground(list.getBackground());
-	                label.setForeground(list.getForeground());
-	            }
-	            return label;
+	        if (userId.isEmpty() || token.isEmpty()) {
+	            JOptionPane.showMessageDialog(challengeStatusFrame, "Please, fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
+	            return;
 	        }
-	    });
 
-	    // Añadir panels al frame
-	    createChallengesFrame.add(topPanel, BorderLayout.NORTH);
-	    createChallengesFrame.add(scrollPane, BorderLayout.CENTER);
-
-	    fetchButton.addActionListener(e -> {
-	        listModel.clear();  // Limpiar la lista antes de actualizar
 	        try {
-	            Date startDate = (Date) startDateSpinner.getValue();
-	            Date endDate = (Date) endDateSpinner.getValue();
-	            String sport = sportField.getText();
-	            
-	            List<Challenge> challenges = controller.challenges(startDate, endDate, sport);
+	            Map<String, Float> statusMap = controller.challengeStatus(userId, token);
 
-	            if (challenges.isEmpty()) {
-	                listModel.addElement(null);  // No challenges found
+	            if (statusMap.isEmpty()) {
+	                JOptionPane.showMessageDialog(challengeStatusFrame, "No challenges with progress found.", "Info", JOptionPane.INFORMATION_MESSAGE);
 	            } else {
-	                for (Challenge challenge : challenges) {
-	                    listModel.addElement(challenge); // Añadir el objeto Challenge
+	                StringBuilder result = new StringBuilder("Challenge Progress:\n");
+	                for (Map.Entry<String, Float> entry : statusMap.entrySet()) {
+	                    result.append("Challenge: ").append(entry.getKey())
+	                          .append(", Progress: ").append(entry.getValue()).append("%\n");
 	                }
+	                JOptionPane.showMessageDialog(challengeStatusFrame, result.toString(), "Challenge Status", JOptionPane.INFORMATION_MESSAGE);
 	            }
 	        } catch (Exception ex) {
-	            listModel.addElement(null);  // Error loading challenges
+	            ex.printStackTrace();
+	            JOptionPane.showMessageDialog(challengeStatusFrame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 	        }
 	    });
 	}
     
 }
-
-
