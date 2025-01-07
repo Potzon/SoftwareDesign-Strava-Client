@@ -750,45 +750,52 @@ public class SwingClientGUI extends JFrame{
 	private static void challengesStatus() {
 	    JFrame challengeStatusFrame = new JFrame("Challenge Status");
 	    challengeStatusFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	    challengeStatusFrame.setSize(600, 400);
-	    challengeStatusFrame.setLayout(new BorderLayout());
+	    challengeStatusFrame.setSize(400, 300);
 
-	    // Panel para mensajes de error o estado
-	    JLabel statusLabel = new JLabel("Fetching challenge status...");
-	    statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
-	    challengeStatusFrame.add(statusLabel, BorderLayout.NORTH);
+	    JPanel panel = new JPanel(new GridLayout(4, 2));
 
-	    // Tabla para mostrar el estado de los desafíos
-	    String[] columnNames = {"Challenge", "Progress (%)"};
-	    DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
-	    JTable challengeTable = new JTable(tableModel);
-	    JScrollPane scrollPane = new JScrollPane(challengeTable);
-	    challengeStatusFrame.add(scrollPane, BorderLayout.CENTER);
+	    // Input fields
+	    panel.add(new JLabel("User ID:"));
+	    JTextField userIdField = new JTextField();
+	    panel.add(userIdField);
 
-	    // Hilo para obtener los datos y llenar la tabla
-	    new Thread(() -> {
-	        try {
-	            Map<String, Float> challengeStatus = controller.challengeStatus(userId, token);
+	    panel.add(new JLabel("Token:"));
+	    JTextField tokenField = new JTextField();
+	    panel.add(tokenField);
 
-	            SwingUtilities.invokeLater(() -> {
-	                statusLabel.setText("Challenge status loaded successfully!");
+	    JButton fetchStatusButton = new JButton("Fetch Challenge Status");
+	    panel.add(fetchStatusButton);
 
-	                for (Map.Entry<String, Float> entry : challengeStatus.entrySet()) {
-	                    String challengeName = entry.getKey();
-	                    Float progress = entry.getValue();
-	                    tableModel.addRow(new Object[]{challengeName, progress});
-	                }
-	            });
-	        } catch (RuntimeException ex) {
-	            SwingUtilities.invokeLater(() -> {
-	                statusLabel.setText("Error: " + ex.getMessage());
-	                JOptionPane.showMessageDialog(challengeStatusFrame, "Failed to load challenge status:\n" + ex.getMessage(),
-	                        "Error", JOptionPane.ERROR_MESSAGE);
-	            });
-	        }
-	    }).start();
-
+	    challengeStatusFrame.add(panel);
 	    challengeStatusFrame.setVisible(true);
+
+	    fetchStatusButton.addActionListener(e -> {
+	        String userId = userIdField.getText();
+	        String token = tokenField.getText();
+
+	        if (userId.isEmpty() || token.isEmpty()) {
+	            JOptionPane.showMessageDialog(challengeStatusFrame, "Please, fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
+	            return;
+	        }
+
+	        try {
+	            Map<String, Float> statusMap = controller.challengeStatus(userId, token);
+
+	            if (statusMap.isEmpty()) {
+	                JOptionPane.showMessageDialog(challengeStatusFrame, "No challenges with progress found.", "Info", JOptionPane.INFORMATION_MESSAGE);
+	            } else {
+	                StringBuilder result = new StringBuilder("Challenge Progress:\n");
+	                for (Map.Entry<String, Float> entry : statusMap.entrySet()) {
+	                    result.append("Challenge: ").append(entry.getKey())
+	                          .append(", Progress: ").append(entry.getValue()).append("%\n");
+	                }
+	                JOptionPane.showMessageDialog(challengeStatusFrame, result.toString(), "Challenge Status", JOptionPane.INFORMATION_MESSAGE);
+	            }
+	        } catch (Exception ex) {
+	            ex.printStackTrace();
+	            JOptionPane.showMessageDialog(challengeStatusFrame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	        }
+	    });
 	}
     
 }
