@@ -355,7 +355,7 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 	        HttpRequest request = HttpRequest.newBuilder()
 	                .uri(URI.create(BASE_URL + "/challenges/users/" + userId + "/challenges/" + challengeId))
 	                .header("Content-Type", "application/json")
-	                .POST(HttpRequest.BodyPublishers.ofString(token))
+	                .POST(HttpRequest.BodyPublishers.ofString(String.valueOf(token)))
 	                .build();
 
 	        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -370,7 +370,7 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 	            default -> throw new RuntimeException("Failed to fetch user challenges with status code: " + response.statusCode());
 	        };
 	    } catch (IOException | InterruptedException e) {
-	        throw new RuntimeException("Error while fetching user challenges", e);
+	        throw new RuntimeException("Error while fetching challenge", e);
 	    }
 	}
 	
@@ -380,11 +380,15 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 	        HttpRequest request = HttpRequest.newBuilder()
 	                .uri(URI.create(BASE_URL + "/challenges/users/" + userId + "/challenges/status"))
 	                .header("Content-Type", "application/json")
-	                .POST(HttpRequest.BodyPublishers.ofString(token))
+	                .POST(HttpRequest.BodyPublishers.ofString(String.valueOf(token)))
 	                .build();
 
 	        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+	        
 
+	        System.out.println("Response code: " + response.statusCode());
+	        System.out.println("Response body: " + response.body());
+	        
 	        return switch (response.statusCode()) {
 	            case 200 -> objectMapper.readValue(response.body(),
 	                    objectMapper.getTypeFactory().constructMapType(Map.class, String.class, Float.class));

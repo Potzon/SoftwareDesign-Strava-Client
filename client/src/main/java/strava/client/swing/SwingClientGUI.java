@@ -158,8 +158,7 @@ public class SwingClientGUI extends JFrame{
         JButton createSessionButton = new JButton("Create a training session");
         JButton querySessionsButton = new JButton("Query training sessions");
         JButton setupChallengeButton = new JButton("Set up a challenge");
-        JButton queryChallengesButton = new JButton("Query challenges");
-        JButton participateChallengeButton = new JButton("Participate on a challenge");
+        JButton queryChallengesButton = new JButton("Challenges");
         JButton challengeStatusButton = new JButton("Challenges status");
 
         menuPanel.add(logoutButton);
@@ -167,7 +166,6 @@ public class SwingClientGUI extends JFrame{
         menuPanel.add(querySessionsButton);
         menuPanel.add(setupChallengeButton);
         menuPanel.add(queryChallengesButton);
-        menuPanel.add(participateChallengeButton);
         menuPanel.add(challengeStatusButton);
 
         menuFrame.add(menuPanel);
@@ -178,7 +176,6 @@ public class SwingClientGUI extends JFrame{
 		querySessionsButton.addActionListener(e -> querySessions());
 		setupChallengeButton.addActionListener(e -> setupChallenge());
 		queryChallengesButton.addActionListener(e -> queryChallenges());
-		participateChallengeButton.addActionListener(e -> participateChallenge());
 		challengeStatusButton.addActionListener(e -> challengesStatus());
        
     }
@@ -558,7 +555,7 @@ public class SwingClientGUI extends JFrame{
 	}
 	
 	private static void queryChallenges() {
-	    JFrame createChallengesFrame = new JFrame("User's Challenges");
+	    JFrame createChallengesFrame = new JFrame("Search Challenges");
 	    createChallengesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    createChallengesFrame.setSize(500, 300);
 	    createChallengesFrame.setLayout(new BorderLayout());
@@ -663,7 +660,7 @@ public class SwingClientGUI extends JFrame{
 	        }
 	    });
 
-	    // Agregar MouseListener para copiar el challengeId al portapapeles
+	    
 	    sessionList.addMouseListener(new MouseAdapter() {
 	        @Override
 	        public void mouseClicked(MouseEvent e) {
@@ -671,8 +668,27 @@ public class SwingClientGUI extends JFrame{
 	            if (index != -1) {
 	                Challenge selectedChallenge = listModel.getElementAt(index);
 	                if (selectedChallenge != null) {
-	                    String challengeId = selectedChallenge.challengeId();  // Obtener el challengeId
-	                    copyChallengeToClipboard(challengeId);
+	                    String challengeId = selectedChallenge.challengeId();
+	                    
+	                    try {
+	        	            List<Challenge> challenges = controller.challengeParticipant(challengeId, userId, token);
+
+	        	            if (challenges.isEmpty()) {
+	        	                JOptionPane.showMessageDialog(createChallengesFrame, "Challenge not found.", "Info", JOptionPane.INFORMATION_MESSAGE);
+	        	            } else {
+	        	                StringBuilder result = new StringBuilder("Participation registered:\n");
+	        	                for (Challenge challenge : challenges) {
+	        	                    result.append("ID: ").append(challenge.challengeId())
+	        	                          .append(", Name: ").append(challenge.challengeName())
+	        	                          .append(", Sport: ").append(challenge.sport())
+	        	                          .append("\n");
+	        	                }
+	        	                JOptionPane.showMessageDialog(createChallengesFrame, result.toString(), "Challenges", JOptionPane.INFORMATION_MESSAGE);
+	        	            }
+	        	        } catch (Exception ex) {
+	        	            ex.printStackTrace();
+	        	            JOptionPane.showMessageDialog(createChallengesFrame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	        	        }
 	                }
 	            }
 	        }
@@ -681,114 +697,118 @@ public class SwingClientGUI extends JFrame{
 	    createChallengesFrame.setVisible(true);
 	}
 
-	private static void copyChallengeToClipboard(String challengeId) {
-	    StringSelection stringSelection = new StringSelection(challengeId);
-	    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-	    clipboard.setContents(stringSelection, null);
-	}
-
 
     
 
 	
-	private static void participateChallenge() {
-	    JFrame challengeParticipantFrame = new JFrame("Challenge Participant");
-	    challengeParticipantFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	    challengeParticipantFrame.setSize(400, 300);
-
-	    JPanel panel = new JPanel(new GridLayout(5, 2));
-
-	    // Input fields
-	    panel.add(new JLabel("Challenge ID:"));
-	    JTextField challengeIdField = new JTextField();
-	    panel.add(challengeIdField);
-
-
-	    JButton fetchButton = new JButton("Fetch Challenges");
-	    panel.add(fetchButton);
-
-	    challengeParticipantFrame.add(panel);
-	    challengeParticipantFrame.setVisible(true);
-
-	    fetchButton.addActionListener(e -> {
-	        String challengeId = challengeIdField.getText();
-
-	        if (challengeId.isEmpty() || userId.isEmpty() || token.isEmpty()) {
-	            JOptionPane.showMessageDialog(challengeParticipantFrame, "Please, fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
-	            return;
-	        }
-
-	        try {
-	            List<Challenge> challenges = controller.challengeParticipant(challengeId, userId, token);
-
-	            if (challenges.isEmpty()) {
-	                JOptionPane.showMessageDialog(challengeParticipantFrame, "No challenges found for the participant.", "Info", JOptionPane.INFORMATION_MESSAGE);
-	            } else {
-	                StringBuilder result = new StringBuilder("Challenges Found:\n");
-	                for (Challenge challenge : challenges) {
-	                    result.append("ID: ").append(challenge.challengeId())
-	                          .append(", Name: ").append(challenge.challengeName())
-	                          .append(", Sport: ").append(challenge.sport())
-	                          .append("\n");
-	                }
-	                JOptionPane.showMessageDialog(challengeParticipantFrame, result.toString(), "Challenges", JOptionPane.INFORMATION_MESSAGE);
-	            }
-	        } catch (Exception ex) {
-	            ex.printStackTrace();
-	            JOptionPane.showMessageDialog(challengeParticipantFrame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-	        }
-	    });
-	}
 	
 	private static void challengesStatus() {
-	    JFrame challengeStatusFrame = new JFrame("Challenge Status");
-	    challengeStatusFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	    challengeStatusFrame.setSize(400, 300);
+		JFrame createChallengesFrame = new JFrame("Search Challenges");
+	    createChallengesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    createChallengesFrame.setSize(500, 300);
+	    createChallengesFrame.setLayout(new BorderLayout());
 
-	    JPanel panel = new JPanel(new GridLayout(4, 2));
+	    JPanel topPanel = new JPanel();
+	    topPanel.setLayout(new GridBagLayout());
 
-	    // Input fields
-	    panel.add(new JLabel("User ID:"));
-	    JTextField userIdField = new JTextField(userId);
-	    panel.add(userIdField);
+	    GridBagConstraints gbc = new GridBagConstraints();
+	    gbc.fill = GridBagConstraints.HORIZONTAL;
+	    gbc.insets = new Insets(5, 5, 5, 5);
 
-	    panel.add(new JLabel("Token:"));
-	    JTextField tokenField = new JTextField(token);
-	    panel.add(tokenField);
+	    // Componentes
+	    JLabel startDateLabel = new JLabel("Start Date:");
+	    JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
+	    startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
+	    startDateSpinner.setValue(new Date());
 
-	    JButton fetchStatusButton = new JButton("Fetch Challenge Status");
-	    panel.add(fetchStatusButton);
+	    JLabel endDateLabel = new JLabel("End Date:");
+	    JSpinner endDateSpinner = new JSpinner(new SpinnerDateModel());
+	    endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
+	    endDateSpinner.setValue(new Date());
 
-	    challengeStatusFrame.add(panel);
-	    challengeStatusFrame.setVisible(true);
+	    JLabel sportLabel = new JLabel("Sport:");
+	    JTextField sportField = new JTextField("Running");
 
-	    fetchStatusButton.addActionListener(e -> {
-	        String userId = userIdField.getText();
-	        String token = tokenField.getText();
+	    JButton fetchButton = new JButton("Get Challenges");
 
-	        if (userId.isEmpty() || token.isEmpty()) {
-	            JOptionPane.showMessageDialog(challengeStatusFrame, "Please, fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
-	            return;
-	        }
+	    gbc.gridx = 0;
+	    gbc.gridy = 0;
+	    topPanel.add(startDateLabel, gbc);
 
-	        try {
-	            Map<String, Float> statusMap = controller.challengeStatus(userId, token);
+	    gbc.gridx = 1;
+	    topPanel.add(startDateSpinner, gbc);
 
-	            if (statusMap.isEmpty()) {
-	                JOptionPane.showMessageDialog(challengeStatusFrame, "No challenges with progress found.", "Info", JOptionPane.INFORMATION_MESSAGE);
+	    gbc.gridx = 0;
+	    gbc.gridy = 1;
+	    topPanel.add(endDateLabel, gbc);
+
+	    gbc.gridx = 1;
+	    topPanel.add(endDateSpinner, gbc);
+
+	    gbc.gridx = 0;
+	    gbc.gridy = 2;
+	    topPanel.add(sportLabel, gbc);
+
+	    gbc.gridx = 1;
+	    topPanel.add(sportField, gbc);
+
+	    gbc.gridx = 0;
+	    gbc.gridy = 3;
+	    gbc.gridwidth = 2;  // El botón debe ocupar las dos columnas
+	    topPanel.add(fetchButton, gbc);
+
+	    // Lista para mostrar las sesiones
+	    DefaultListModel<Challenge> listModel = new DefaultListModel<>();
+	    JList<Challenge> sessionList = new JList<>(listModel);
+	    JScrollPane scrollPane = new JScrollPane(sessionList);
+
+	    // Personalizar el renderizado de la lista (solo mostrar información específica)
+	    sessionList.setCellRenderer(new ListCellRenderer<Challenge>() {
+	        @Override
+	        public Component getListCellRendererComponent(JList<? extends Challenge> list, Challenge value, int index, boolean isSelected, boolean cellHasFocus) {
+	            JLabel label = new JLabel();
+	            if (value != null) {
+	                label.setText(String.format("%s - %s - %.2f km - %s", 
+	                        value.challengeName(), value.sport(), value.targetDistance(), value.startDate()));
+	            }
+	            label.setOpaque(true);
+	            if (isSelected) {
+	                label.setBackground(list.getSelectionBackground());
+	                label.setForeground(list.getSelectionForeground());
 	            } else {
-	                StringBuilder result = new StringBuilder("Challenge Progress:\n");
-	                for (Map.Entry<String, Float> entry : statusMap.entrySet()) {
-	                    result.append("Challenge: ").append(entry.getKey())
-	                          .append(", Progress: ").append(entry.getValue()).append("%\n");
+	                label.setBackground(list.getBackground());
+	                label.setForeground(list.getForeground());
+	            }
+	            return label;
+	        }
+	    });
+
+	    // Añadir panels al frame
+	    createChallengesFrame.add(topPanel, BorderLayout.NORTH);
+	    createChallengesFrame.add(scrollPane, BorderLayout.CENTER);
+
+	    fetchButton.addActionListener(e -> {
+	        listModel.clear();  // Limpiar la lista antes de actualizar
+	        try {
+	            Date startDate = (Date) startDateSpinner.getValue();
+	            Date endDate = (Date) endDateSpinner.getValue();
+	            String sport = sportField.getText();
+	            
+	            List<Challenge> challenges = controller.challenges(startDate, endDate, sport);
+
+	            if (challenges.isEmpty()) {
+	                listModel.addElement(null);  // No challenges found
+	            } else {
+	                for (Challenge challenge : challenges) {
+	                    listModel.addElement(challenge); // Añadir el objeto Challenge
 	                }
-	                JOptionPane.showMessageDialog(challengeStatusFrame, result.toString(), "Challenge Status", JOptionPane.INFORMATION_MESSAGE);
 	            }
 	        } catch (Exception ex) {
-	            ex.printStackTrace();
-	            JOptionPane.showMessageDialog(challengeStatusFrame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	            listModel.addElement(null);  // Error loading challenges
 	        }
 	    });
 	}
     
 }
+
+
