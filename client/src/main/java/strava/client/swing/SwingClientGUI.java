@@ -25,7 +25,9 @@ import strava.client.data.User;
 import java.util.List;
 import java.util.Map;
 public class SwingClientGUI extends JFrame{
-    private static SwingClientController controller = new SwingClientController();
+
+	private static final long serialVersionUID = 1L;
+	private static SwingClientController controller = new SwingClientController();
     private static String userId;
     private static String token;
 
@@ -582,7 +584,7 @@ public class SwingClientGUI extends JFrame{
 	    JLabel sportLabel = new JLabel("Sport:");
 	    JTextField sportField = new JTextField("Running");
 
-	    JButton fetchButton = new JButton("Get Sessions");
+	    JButton fetchButton = new JButton("Get Challenges");
 
 	    gbc.gridx = 0;
 	    gbc.gridy = 0;
@@ -701,13 +703,6 @@ public class SwingClientGUI extends JFrame{
 	    JTextField challengeIdField = new JTextField();
 	    panel.add(challengeIdField);
 
-	    panel.add(new JLabel("User ID:"));
-	    JTextField userIdField = new JTextField();
-	    panel.add(userIdField);
-
-	    panel.add(new JLabel("Token:"));
-	    JTextField tokenField = new JTextField();
-	    panel.add(tokenField);
 
 	    JButton fetchButton = new JButton("Fetch Challenges");
 	    panel.add(fetchButton);
@@ -717,8 +712,6 @@ public class SwingClientGUI extends JFrame{
 
 	    fetchButton.addActionListener(e -> {
 	        String challengeId = challengeIdField.getText();
-	        String userId = userIdField.getText();
-	        String token = tokenField.getText();
 
 	        if (challengeId.isEmpty() || userId.isEmpty() || token.isEmpty()) {
 	            JOptionPane.showMessageDialog(challengeParticipantFrame, "Please, fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
@@ -756,11 +749,11 @@ public class SwingClientGUI extends JFrame{
 
 	    // Input fields
 	    panel.add(new JLabel("User ID:"));
-	    JTextField userIdField = new JTextField();
+	    JTextField userIdField = new JTextField(userId);
 	    panel.add(userIdField);
 
 	    panel.add(new JLabel("Token:"));
-	    JTextField tokenField = new JTextField();
+	    JTextField tokenField = new JTextField(token);
 	    panel.add(tokenField);
 
 	    JButton fetchStatusButton = new JButton("Fetch Challenge Status");
