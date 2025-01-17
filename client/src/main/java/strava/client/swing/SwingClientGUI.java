@@ -1,6 +1,7 @@
 package strava.client.swing;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.*;
@@ -125,11 +126,11 @@ public class SwingClientGUI extends JFrame{
                      return;
                  }
 
-                 String userId = response.get("userId");
-                 String token = response.get("token");
+                 userId = response.get("userId");
+                 token = response.get("token");
 
                  JOptionPane.showMessageDialog(frame, "Login Successful:\nUser ID: " + userId + ", Token: " + token);
-                 openAPIMenuWindow(frame);
+                 openAPIMenuWindow2(frame);
                  frame.setVisible(false);
              } catch (Exception ex) {
                  JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -261,6 +262,117 @@ public class SwingClientGUI extends JFrame{
        
     }
     
+    static class CustomButton extends JButton {
+    	 public CustomButton(String text) {
+    	     super(text);
+    	     setFocusPainted(false);
+    	     setContentAreaFilled(false);
+    	     setBorder(BorderFactory.createLineBorder(new Color(252, 76, 2), 2));
+    	     setForeground(new Color(252, 76, 2));
+    	     setFont(new Font("SansSerif", Font.PLAIN, 16));
+    	     setHorizontalTextPosition(JButton.CENTER);
+    	     setVerticalTextPosition(JButton.BOTTOM);
+    	     setCursor(new Cursor(Cursor.HAND_CURSOR));
+    	 }
+    	}
+    private static void openAPIMenuWindow2(JFrame initialFrame) {
+
+        JFrame menuFrame = new JFrame("STRAVA MENU");
+        menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        menuFrame.setSize(800, 600);
+        
+        JPanel topPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+
+                // Dibujar fondo degradado (blanco a naranja)
+                GradientPaint gradient = new GradientPaint(0, 0, Color.WHITE, getWidth(), 0, new Color(252, 76, 2));
+                g2d.setPaint(gradient);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        topPanel.setBorder(new LineBorder(new Color(255, 69, 0), 5));
+
+        topPanel.setPreferredSize(new Dimension(800, 100));
+        topPanel.setLayout(null);
+        
+        JLabel logoLabel = new JLabel();
+        logoLabel.setBounds(10, 19, 232, 70); // Ajustar tamaño del label
+        ImageIcon logoIcon = new ImageIcon(SwingClientGUI.class.getResource("strava-logo-1536x323.png"));
+        Image scaledImage = logoIcon.getImage().getScaledInstance(232, 70, Image.SCALE_SMOOTH); // Ajustar tamaño de la imagen
+        logoLabel.setIcon(new ImageIcon(scaledImage));
+        topPanel.add(logoLabel);
+        
+        JButton logOutButton = new JButton();
+        logOutButton.setBounds(712, 11, 58, 58); // Posición y tamaño del botón
+        ImageIcon loginIcon = new ImageIcon(SwingClientGUI.class.getResource("log_off-512.png")); // Ruta de la imagen del botón
+        Image scaledLoginImage = loginIcon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH); // Escalar la imagen
+        logOutButton.setIcon(new ImageIcon(scaledLoginImage));
+        logOutButton.setFocusPainted(false);
+        logOutButton.setContentAreaFilled(false);
+        logOutButton.setBorderPainted(false);
+        logOutButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        topPanel.add(logOutButton);
+        
+        menuFrame.getContentPane().add(topPanel, BorderLayout.NORTH);
+        
+        JLabel lblNewLabel = new JLabel("LOGOUT");
+        lblNewLabel.setBounds(712, 67, 76, 14);
+        topPanel.add(lblNewLabel);
+        
+        JPanel mainPanel = new JPanel();
+        mainPanel.setBackground(new Color(255, 255, 255));
+
+        menuFrame.getContentPane().add(mainPanel, BorderLayout.CENTER);
+        mainPanel.setLayout(null);
+        
+        CustomButton newChallengeBtn = new CustomButton("SET UP A NEW CHALLENGE");
+        newChallengeBtn.setText("SET UP A NEW CHALLENGE");
+        newChallengeBtn.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 19));
+        newChallengeBtn.setBackground(new Color(255, 69, 0));
+        newChallengeBtn.setForeground(new Color(255, 69, 0));
+        newChallengeBtn.setBounds(50, 113, 352, 59);
+        mainPanel.add(newChallengeBtn);
+        
+        CustomButton activeChallengesBtn = new CustomButton("FACE UP A NEW CHALLENGE");
+        activeChallengesBtn.setText("ACTIVE CHALLENGES");
+        activeChallengesBtn.setForeground(new Color(255, 69, 0));
+        activeChallengesBtn.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 19));
+        activeChallengesBtn.setBackground(new Color(255, 69, 0));
+        activeChallengesBtn.setBounds(50, 244, 352, 59);
+        mainPanel.add(activeChallengesBtn);
+        
+        CustomButton newSessionBtn = new CustomButton("FACE UP A NEW CHALLENGE");
+        newSessionBtn.setText("START A NEW SESSION");
+        newSessionBtn.setForeground(new Color(255, 69, 0));
+        newSessionBtn.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 19));
+        newSessionBtn.setBackground(new Color(255, 69, 0));
+        newSessionBtn.setBounds(412, 113, 352, 59);
+        mainPanel.add(newSessionBtn);
+        
+        CustomButton sessionsBtn = new CustomButton("FACE UP A NEW CHALLENGE");
+        sessionsBtn.setText("SESSION SUMMARY");
+        sessionsBtn.setForeground(new Color(255, 69, 0));
+        sessionsBtn.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 19));
+        sessionsBtn.setBackground(new Color(255, 69, 0));
+        sessionsBtn.setBounds(412, 244, 352, 59);
+        mainPanel.add(sessionsBtn);
+        
+        menuFrame.setLocationRelativeTo(null);
+        menuFrame.setVisible(true);
+
+        menuFrame.add(mainPanel);
+        menuFrame.setVisible(true);
+
+        logOutButton.addActionListener(e -> logout(menuFrame, initialFrame));
+        newChallengeBtn.addActionListener(e -> openCreateSessionWindow());
+        activeChallengesBtn.addActionListener(e -> querySessions());
+        newSessionBtn.addActionListener(e -> setupChallenge());
+        sessionsBtn.addActionListener(e -> queryChallenges());
+       
+    }
 
 	private static void openRegisterWindow() {
  		JFrame registerFrame = new JFrame("Register");
