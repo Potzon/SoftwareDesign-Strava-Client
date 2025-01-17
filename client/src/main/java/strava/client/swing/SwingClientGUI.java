@@ -33,7 +33,7 @@ public class SwingClientGUI extends JFrame{
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            JFrame initialFrame = createInitialFrame();
+            JFrame initialFrame = ventanaLogin();
             initialFrame.setVisible(true);
         });
     }
@@ -57,6 +57,88 @@ public class SwingClientGUI extends JFrame{
         registerButton.addActionListener(e -> openRegisterWindow());
 
         return frame;
+    }
+    
+    private static JFrame ventanaLogin() {
+    	JFrame frame = new JFrame("Login/Register");
+         frame.setResizable(false);
+         frame.setSize(1024, 670);
+         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+         frame.getContentPane().setLayout(null);
+
+         JLabel lblNewLabel = new JLabel("");
+         lblNewLabel.setIcon(new ImageIcon(SwingClientGUI.class.getResource("strava-digital-1024x633.jpg")));
+         lblNewLabel.setBounds(0, 0, 1024, 633);
+         frame.getContentPane().add(lblNewLabel);
+
+         JLabel emailLabel = new JLabel("Email:");
+         emailLabel.setForeground(Color.WHITE);
+         emailLabel.setBounds(412, 395, 200, 30);
+
+         JTextField emailField = new JTextField("user1@example.com");
+         emailField.setBounds(412, 420, 200, 30);
+
+         JLabel passwordLabel = new JLabel("Password:");
+         passwordLabel.setForeground(Color.WHITE);
+         passwordLabel.setBounds(412, 445, 200, 30);
+
+         JPasswordField passwordField = new JPasswordField("password123");
+         passwordField.setBounds(412, 470, 200, 30);
+
+         String[] providers = {"Google", "Facebook"};
+         JComboBox<String> comboBox = new JComboBox<>(providers);
+         comboBox.setBounds(412, 510, 200, 30);
+         
+         JButton loginButton = new JButton("Login");
+         loginButton.setBounds(412, 550, 90, 30);
+
+         JButton registerButton = new JButton("Register");
+         registerButton.setBounds(522, 550, 90, 30);
+
+         lblNewLabel.add(emailLabel);
+         lblNewLabel.add(emailField);
+         lblNewLabel.add(passwordLabel);
+         lblNewLabel.add(passwordField);
+         lblNewLabel.add(comboBox);
+         lblNewLabel.add(loginButton);
+         lblNewLabel.add(registerButton);
+         lblNewLabel.setLayout(null);
+         
+         
+         loginButton.addActionListener(e -> {
+             String email = emailField.getText();
+             String password = new String(passwordField.getPassword());
+             String externalProv = comboBox.getSelectedItem().toString();
+             
+             if (email.isEmpty() || password.isEmpty() || externalProv.isEmpty()) {
+                 JOptionPane.showMessageDialog(frame, "Please, fill in the blank spaces", "Error", JOptionPane.ERROR_MESSAGE);
+                 return;
+             }
+
+             try {
+                 Credentials credentials = new Credentials(email, password, externalProv);
+                 var response = controller.login(credentials);
+
+                 // Validación de la respuesta
+                 if (response == null || !response.containsKey("userId") || !response.containsKey("token")) {
+                     JOptionPane.showMessageDialog(frame, "Error: Invalid Server Response.", "Error", JOptionPane.ERROR_MESSAGE);
+                     return;
+                 }
+
+                 String userId = response.get("userId");
+                 String token = response.get("token");
+
+                 JOptionPane.showMessageDialog(frame, "Login Successful:\nUser ID: " + userId + ", Token: " + token);
+                 openAPIMenuWindow(frame);
+                 frame.setVisible(false);
+             } catch (Exception ex) {
+                 JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+             }
+         });
+
+         registerButton.addActionListener(e -> openRegisterWindow());
+         
+         return frame;
     }
 
     private static void openLoginWindow(JFrame initialFrame) {
@@ -146,7 +228,6 @@ public class SwingClientGUI extends JFrame{
 
 
     private static void openAPIMenuWindow(JFrame initialFrame) {
-        initialFrame.setVisible(false);
 
         JFrame menuFrame = new JFrame("API Menu");
         menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
