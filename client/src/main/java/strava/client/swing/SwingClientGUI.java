@@ -39,26 +39,6 @@ public class SwingClientGUI extends JFrame{
         });
     }
 
-    private static JFrame createInitialFrame() {
-        JFrame frame = new JFrame("API Client");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 200);
-
-        JPanel panel = new JPanel(new GridLayout(2, 1));
-
-        JButton loginButton = new JButton("Login");
-        JButton registerButton = new JButton("Register");
-
-        panel.add(loginButton);
-        panel.add(registerButton);
-
-        frame.add(panel);
-
-        loginButton.addActionListener(e -> openLoginWindow(frame));
-        registerButton.addActionListener(e -> openRegisterWindow());
-
-        return frame;
-    }
     
     private static JFrame ventanaLogin() {
     	JFrame frame = new JFrame("Login/Register");
@@ -66,6 +46,7 @@ public class SwingClientGUI extends JFrame{
          frame.setSize(1024, 670);
          frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
          frame.getContentPane().setLayout(null);
+         frame.setLocationRelativeTo(null);
 
          JLabel lblNewLabel = new JLabel("");
          lblNewLabel.setIcon(new ImageIcon(SwingClientGUI.class.getResource("strava-digital-1024x633.jpg")));
@@ -233,8 +214,9 @@ public class SwingClientGUI extends JFrame{
         JFrame menuFrame = new JFrame("API Menu");
         menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         menuFrame.setSize(400, 400);
+        menuFrame.setLocationRelativeTo(null);
 
-        JPanel menuPanel = new JPanel(new GridLayout(7, 1));
+        JPanel menuPanel = new JPanel(new GridLayout(6, 1));
 
         JButton logoutButton = new JButton("Logout");
         JButton createSessionButton = new JButton("Create a training session");
@@ -378,6 +360,7 @@ public class SwingClientGUI extends JFrame{
  		JFrame registerFrame = new JFrame("Register");
  		registerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
  		registerFrame.setSize(400, 600);
+ 		registerFrame.setLocationRelativeTo(null);
 
  		JPanel registerPanel = new JPanel(new GridLayout(12, 2));
 
@@ -476,6 +459,7 @@ public class SwingClientGUI extends JFrame{
 		JFrame createSessionFrame = new JFrame("Create Training Session");
 		createSessionFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		createSessionFrame.setSize(400, 600);
+		createSessionFrame.setLocationRelativeTo(null);
 
 		JPanel panel = new JPanel(new GridLayout(6, 2));
 
@@ -550,6 +534,7 @@ public class SwingClientGUI extends JFrame{
 	    createSessionsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    createSessionsFrame.setSize(500, 300);
 	    createSessionsFrame.setLayout(new BorderLayout());
+	    createSessionsFrame.setLocationRelativeTo(null);
 
 	    JPanel topPanel = new JPanel();
 	    topPanel.setLayout(new GridBagLayout());
@@ -672,6 +657,7 @@ public class SwingClientGUI extends JFrame{
 		JFrame createChallengeFrame = new JFrame("Create Challenge");
 		createChallengeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		createChallengeFrame.setSize(400, 600);
+		createChallengeFrame.setLocationRelativeTo(null);
 
 		JPanel panel = new JPanel(new GridLayout(8, 2));
 
@@ -752,6 +738,7 @@ public class SwingClientGUI extends JFrame{
 	    createChallengesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    createChallengesFrame.setSize(500, 300);
 	    createChallengesFrame.setLayout(new BorderLayout());
+	    createChallengesFrame.setLocationRelativeTo(null);
 
 	    JPanel topPanel = new JPanel();
 	    topPanel.setLayout(new GridBagLayout());
@@ -899,6 +886,7 @@ public class SwingClientGUI extends JFrame{
 	    JFrame challengeStatusFrame = new JFrame("Challenge Status");
 	    challengeStatusFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    challengeStatusFrame.setSize(400, 300);
+	    challengeStatusFrame.setLocationRelativeTo(null);
 
 	    JPanel panel = new JPanel(new GridLayout(4, 2));
 
