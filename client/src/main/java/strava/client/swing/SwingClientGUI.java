@@ -221,6 +221,12 @@ public class SwingClientGUI extends JFrame{
         sessionsBtn.setForeground(new Color(255, 69, 0));
         sessionsBtn.setBounds(412, 244, 352, 59);
         mainPanel.add(sessionsBtn);
+        
+        CustomButton statusBtn = new CustomButton("CHALLENGE STATUS");
+        statusBtn.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 19));
+        statusBtn.setForeground(new Color(255, 69, 0));
+        statusBtn.setBounds(230, 340, 352, 59);
+        mainPanel.add(statusBtn);
 
         // Asegurar que la imagen de fondo esté detrás de los botones
 
