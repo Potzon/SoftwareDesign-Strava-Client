@@ -253,15 +253,13 @@ public class SwingClientGUI extends JFrame{
         registerFrame.getContentPane().setLayout(null);
         registerFrame.setLocationRelativeTo(null);
 
-        // Background image
         JLabel lblNewLabel = new JLabel("");
         lblNewLabel.setIcon(new ImageIcon(SwingClientGUI.class.getResource("regUI.jpg")));
         lblNewLabel.setBounds(0, 0, 1024, 633);
         registerFrame.getContentPane().add(lblNewLabel);
 
-        // Labels and text fields
         JLabel emailLabel = new JLabel("Email:");
-        emailLabel.setForeground(Color.BLACK);
+        emailLabel.setForeground(Color.DARK_GRAY);
         emailLabel.setBounds(300, 150, 200, 30);
         lblNewLabel.add(emailLabel);
 
