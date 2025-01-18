@@ -999,7 +999,7 @@ public class SwingClientGUI extends JFrame{
 	    createChallengesFrame.setSize(800, 600);
 	    createChallengesFrame.setResizable(false);
 	    createChallengesFrame.setLocationRelativeTo(null);
-	    createChallengesFrame.setLayout(new BorderLayout());
+	    createChallengesFrame.getContentPane().setLayout(null);
 
 	    // Panel superior con el gradiente y título
 	    JPanel topPanel = new JPanel() {
@@ -1012,6 +1012,7 @@ public class SwingClientGUI extends JFrame{
 	            g2d.fillRect(0, 0, getWidth(), getHeight());
 	        }
 	    };
+	    topPanel.setBounds(0, 0, 800, 100);
 	    topPanel.setPreferredSize(new Dimension(800, 100));
 	    topPanel.setLayout(new BorderLayout());
 
@@ -1019,91 +1020,73 @@ public class SwingClientGUI extends JFrame{
 	    topLabel.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 25));
 	    topLabel.setForeground(Color.WHITE);
 	    topPanel.add(topLabel, BorderLayout.CENTER);
-	    createChallengesFrame.add(topPanel, BorderLayout.NORTH);
+	    createChallengesFrame.getContentPane().add(topPanel);
 
 	    // Panel para los controles de búsqueda
 	    JPanel controlsPanel = new JPanel();
-	    controlsPanel.setLayout(new GridBagLayout());
+	    controlsPanel.setBounds(-16, 100, 800, 218);
 	    controlsPanel.setBackground(new Color(255, 240, 220));
-
-	    GridBagConstraints gbc = new GridBagConstraints();
-	    gbc.fill = GridBagConstraints.HORIZONTAL;
-	    gbc.insets = new Insets(10, 10, 10, 10);
-
-	    JLabel startDateLabel = new JLabel("Start Date:");
-	    JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
-	    startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
-	    startDateSpinner.setValue(new Date());
-
-	    JLabel endDateLabel = new JLabel("End Date:");
-	    JSpinner endDateSpinner = new JSpinner(new SpinnerDateModel());
-	    endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
-	    endDateSpinner.setValue(new Date());
+	    controlsPanel.setLayout(null);
 
 	    JLabel sportLabel = new JLabel("Sport:");
 	    JTextField sportField = new JTextField();
+	    CustomButton fetchButton = new CustomButton("GET CHALLENGES");
+	    fetchButton.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 16));
+	    fetchButton.setBounds(329, 184, 187, 23);
 
-	    JButton fetchButton = new JButton("Get Challenges");
+	    controlsPanel.add(fetchButton);
+	    createChallengesFrame.getContentPane().add(controlsPanel);
 
-	    // Colocar componentes en el panel de controles
-	    gbc.gridx = 0;
-	    gbc.gridy = 0;
-	    controlsPanel.add(startDateLabel, gbc);
+	    JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
+	    startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
+	    startDateSpinner.setValue(new Date());
+	    startDateSpinner.setBounds(383, 50, 172, 20);
+	    controlsPanel.add(startDateSpinner);
 
-	    gbc.gridx = 1;
-	    controlsPanel.add(startDateSpinner, gbc);
+	    JSpinner endDateSpinner = new JSpinner(new SpinnerDateModel());
+	    endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
+	    endDateSpinner.setValue(new Date());
+	    endDateSpinner.setBounds(383, 94, 172, 20);
+	    controlsPanel.add(endDateSpinner);
 
-	    gbc.gridx = 0;
-	    gbc.gridy = 1;
-	    controlsPanel.add(endDateLabel, gbc);
+	    JTextField textField = new JTextField();
+	    textField.setBounds(381, 141, 174, 20);
+	    controlsPanel.add(textField);
+	    textField.setColumns(10);
 
-	    gbc.gridx = 1;
-	    controlsPanel.add(endDateSpinner, gbc);
+	    JLabel lblstartDate = new JLabel("START DATE");
+	    lblstartDate.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 12));
+	    lblstartDate.setBounds(280, 52, 93, 14);
+	    lblstartDate.setForeground(new Color(252, 76, 2));
+	    controlsPanel.add(lblstartDate);
 
-	    gbc.gridx = 0;
-	    gbc.gridy = 2;
-	    controlsPanel.add(sportLabel, gbc);
+	    JLabel lblEndDate = new JLabel("END DATE");
+	    lblEndDate.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 12));
+	    lblEndDate.setBounds(280, 96, 78, 14);
+	    lblEndDate.setForeground(new Color(252, 76, 2));
+	    controlsPanel.add(lblEndDate);
 
-	    gbc.gridx = 1;
-	    controlsPanel.add(sportField, gbc);
+	    JLabel lblSport = new JLabel("SPORT");
+	    lblSport.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 12));
+	    lblSport.setBounds(280, 143, 78, 14);
+	    lblSport.setForeground(new Color(252, 76, 2));
+	    controlsPanel.add(lblSport);
 
-	    gbc.gridx = 0;
-	    gbc.gridy = 3;
-	    gbc.gridwidth = 2;
-	    controlsPanel.add(fetchButton, gbc);
-
-	    createChallengesFrame.add(controlsPanel, BorderLayout.CENTER);
-
-	    // Lista para mostrar los resultados
+	    // Lista para mostrar las sesiones
+	    JScrollPane scrollPane = new JScrollPane();
+	    scrollPane.setViewportBorder(new LineBorder(new Color(252, 76, 2), 2));
+	    scrollPane.setBounds(0, 318, 784, 243);
 	    DefaultListModel<Challenge> listModel = new DefaultListModel<>();
 	    JList<Challenge> sessionList = new JList<>(listModel);
-	    JScrollPane scrollPane = new JScrollPane(sessionList);
+
+	    // Añadir el JList al JScrollPane
 	    sessionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	    sessionList.setBackground(new Color(255, 240, 220));
-	    createChallengesFrame.add(scrollPane, BorderLayout.SOUTH);
+	    scrollPane.setViewportView(sessionList);
+	    scrollPane.getViewport().setBackground(new Color(255, 240, 220));
 
-	    // Render personalizado para los elementos de la lista
-	    sessionList.setCellRenderer(new ListCellRenderer<Challenge>() {
-	        @Override
-	        public Component getListCellRendererComponent(JList<? extends Challenge> list, Challenge value, int index, boolean isSelected, boolean cellHasFocus) {
-	            JLabel label = new JLabel();
-	            if (value != null) {
-	                label.setText(String.format("%s - %s - %.2f km - %s",
-	                        value.challengeName(), value.sport(), value.targetDistance(), value.startDate()));
-	            }
-	            label.setOpaque(true);
-	            if (isSelected) {
-	                label.setBackground(list.getSelectionBackground());
-	                label.setForeground(list.getSelectionForeground());
-	            } else {
-	                label.setBackground(list.getBackground());
-	                label.setForeground(list.getForeground());
-	            }
-	            return label;
-	        }
-	    });
+	    createChallengesFrame.getContentPane().add(scrollPane);
 
-	    // Acción del botón "Get Challenges"
 	    fetchButton.addActionListener(e -> {
 	        listModel.clear();
 	        try {
@@ -1114,18 +1097,18 @@ public class SwingClientGUI extends JFrame{
 	            List<Challenge> challenges = controller.challenges(startDate, endDate, sport);
 
 	            if (challenges.isEmpty()) {
-	                JOptionPane.showMessageDialog(createChallengesFrame, "No challenges found.", "Info", JOptionPane.INFORMATION_MESSAGE);
+	                listModel.addElement(null);
 	            } else {
 	                for (Challenge challenge : challenges) {
 	                    listModel.addElement(challenge);
+	                    
 	                }
 	            }
 	        } catch (Exception ex) {
-	            ex.printStackTrace();
-	            JOptionPane.showMessageDialog(createChallengesFrame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	            listModel.addElement(null);
 	        }
 	    });
-	    
+
 	    sessionList.addMouseListener(new MouseAdapter() {
 	        @Override
 	        public void mouseClicked(MouseEvent e) {
@@ -1141,7 +1124,7 @@ public class SwingClientGUI extends JFrame{
 	                        if (challenges.isEmpty()) {
 	                            JOptionPane.showMessageDialog(createChallengesFrame, "Challenge not found.", "Info", JOptionPane.INFORMATION_MESSAGE);
 	                        } else {
-	                            StringBuilder result = new StringBuilder("Participation registered:\n");
+	                            StringBuilder result = new StringBuilder("Participation registered!\n");
 	                            JOptionPane.showMessageDialog(createChallengesFrame, result.toString(), "Challenges", JOptionPane.INFORMATION_MESSAGE);
 	                        }
 	                    } catch (Exception ex) {

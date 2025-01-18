@@ -11,4 +11,10 @@ public record Challenge(
 	    Float targetDistance,
 	    String sport,
 	    String userId
-	    ) {}
+	    ) {
+
+@Override
+public String toString() {
+    return String.format("%s - %s - %.2f km - %s", challengeName(), sport(), targetDistance(), startDate());
+	}
+}
