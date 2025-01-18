@@ -143,7 +143,7 @@ public class SwingClientGUI extends JFrame{
         JFrame menuFrame = new JFrame("STRAVA MENU");
         menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         menuFrame.setSize(800, 600);
-
+        menuFrame.setResizable(false);
         JPanel topPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -240,6 +240,7 @@ public class SwingClientGUI extends JFrame{
         activeChallengesBtn.addActionListener(e -> queryChallenges());
         newSessionBtn.addActionListener(e -> openCreateSessionWindow());
         sessionsBtn.addActionListener(e -> querySessions());
+        statusBtn.addActionListener(e -> challengesStatus());
 
         menuFrame.setLocationRelativeTo(null);
         menuFrame.setVisible(true);
@@ -391,78 +392,160 @@ public class SwingClientGUI extends JFrame{
     }
     
 	private static void openCreateSessionWindow() {
-		JFrame createSessionFrame = new JFrame("Create Training Session");
-		createSessionFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		createSessionFrame.setSize(400, 600);
-		createSessionFrame.setLocationRelativeTo(null);
+	    JFrame createSessionFrame = new JFrame("Create Training Session");
+	    createSessionFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    createSessionFrame.setSize(800, 600);
+	    createSessionFrame.setLocationRelativeTo(null);
 
-		JPanel panel = new JPanel(new GridLayout(6, 2));
+	    // Crear el panel superior con fondo degradado
+	    JPanel topPanel = new JPanel() {
+	        @Override
+	        protected void paintComponent(Graphics g) {
+	            super.paintComponent(g);
+	            Graphics2D g2d = (Graphics2D) g;
 
+	            // Dibujar fondo degradado (blanco a naranja)
+	            GradientPaint gradient = new GradientPaint(0, 0, Color.WHITE, getWidth(), 0, new Color(252, 76, 2)); // De blanco a naranja
+	            g2d.setPaint(gradient);
+	            g2d.fillRect(0, 0, getWidth(), getHeight());
+	        }
+	    };
+	    topPanel.setPreferredSize(new Dimension(400, 100)); // Alto del panel
+	    topPanel.setLayout(new BorderLayout());
 
-		panel.add(new JLabel("Title:"));
-		JTextField titleField = new JTextField("Special Training Session");
-		panel.add(titleField);
+	    // Título del panel superior
+	    JLabel topLabel = new JLabel("CREATE TRAINING SESSION", SwingConstants.CENTER);
+	    topLabel.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 25));
+	    topLabel.setForeground(Color.white);
+	    topPanel.add(topLabel, BorderLayout.CENTER);
 
-		panel.add(new JLabel("Sport:"));
-		JTextField sportField = new JTextField("Football");
-		panel.add(sportField);
+	    // Añadir el panel superior al marco
+	    createSessionFrame.add(topPanel, BorderLayout.NORTH);
 
-		panel.add(new JLabel("Distance (km):"));
-		JTextField distanceField = new JTextField("45");
-		panel.add(distanceField);
+	    // Crear el panel principal con los campos de entrada (como en el código anterior)
+	    JPanel panel = new JPanel();
+	    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+	    panel.setBackground(new Color(255, 240, 220)); // Color de fondo suave (tono cálido)
 
-		panel.add(new JLabel("Start Date:"));
-        JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
-        startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
-        startDateSpinner.setValue(new Date());
-        panel.add(startDateSpinner);
+	    panel.add(Box.createVerticalStrut(20)); // Espaciado entre el título y los campos
 
-		panel.add(new JLabel("Duration (minutes):"));
-		JTextField durationField = new JTextField("90");
-		panel.add(durationField);
+	    // Crear los campos de entrada con un panel contenedor
+	    JPanel inputPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+	    inputPanel.setBackground(new Color(255, 240, 220)); // Fondo suave para los campos
+	    inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Margen interno
 
-		JButton createButton = new JButton("Create Session");
-		panel.add(createButton);
+	    // Fuente para los JLabel
+	    Font labelFont = new Font("Rockwell Extra Bold", Font.PLAIN, 19);  // Fuente para los JLabel
 
-		createSessionFrame.add(panel);
-		createSessionFrame.setVisible(true);
+	    // Crear los JLabel con la nueva fuente
+	    JLabel titleFieldLabel = new JLabel("Title:");
+	    titleFieldLabel.setFont(labelFont);
+	    titleFieldLabel.setForeground(new Color(252, 76, 2)); // Color naranja
+	    JTextField titleField = new JTextField("Special Training Session");
+	    titleField.setFont(new Font("Arial", Font.PLAIN, 14));
 
-		createButton.addActionListener(e -> {
-			String title = titleField.getText();
-			String sport = sportField.getText();
-			String distance = distanceField.getText();
-			Date startDate = (Date) startDateSpinner.getValue(); 
-			String duration = durationField.getText();
-			
-			
-            if (userId.isEmpty() || token.isEmpty() || title.isEmpty() || sport.isEmpty() || distance.isEmpty() || duration.isEmpty()) {
-                JOptionPane.showMessageDialog(createSessionFrame, "Please, fill in the blank spaces", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
-			try {
-				 TrainingSession response = controller.session(userId, token, title, sport, Float.parseFloat(distance), startDate, Float.parseFloat(duration));
+	    JLabel sportFieldLabel = new JLabel("Sport:");
+	    sportFieldLabel.setFont(labelFont);
+	    sportFieldLabel.setForeground(new Color(252, 76, 2)); // Color naranja
+	    JTextField sportField = new JTextField("Football");
+	    sportField.setFont(new Font("Arial", Font.PLAIN, 14));
 
-	                // Validación de la respuesta
-				 if (response == null || response.sessionId() == null || 
-				    response.sessionId().isEmpty() ||
-					response.title() == null || response.title().isEmpty() || response.sport() == null || response.sport().isEmpty() ||
-					response.distance() == null || response.distance() <= 0 || response.startDate() == null || response.duration() == null || response.duration() <= 0)  {
-	                    JOptionPane.showMessageDialog(createSessionFrame, "Error: Invalid Server Response.", "Error", JOptionPane.ERROR_MESSAGE);
-	                    return;
-	                }
+	    JLabel distanceFieldLabel = new JLabel("Distance (km):");
+	    distanceFieldLabel.setFont(labelFont);
+	    distanceFieldLabel.setForeground(new Color(252, 76, 2)); // Color naranja
+	    JTextField distanceField = new JTextField("45");
+	    distanceField.setFont(new Font("Arial", Font.PLAIN, 14));
 
-	                String sessionId = response.sessionId();
+	    JLabel startDateFieldLabel = new JLabel("Start Date:");
+	    startDateFieldLabel.setFont(labelFont);
+	    startDateFieldLabel.setForeground(new Color(252, 76, 2)); // Color naranja
+	    JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
+	    startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
+	    startDateSpinner.setValue(new Date());
 
-	                JOptionPane.showMessageDialog(createSessionFrame, "Session created succesfully:\nSession ID: " + sessionId);
-	                createSessionFrame.dispose();
-	                
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				JOptionPane.showMessageDialog(createSessionFrame, "Error: " + ex.getMessage());
-			}
-		});
+	    JLabel durationFieldLabel = new JLabel("Duration (minutes):");
+	    durationFieldLabel.setFont(labelFont);
+	    durationFieldLabel.setForeground(new Color(252, 76, 2)); // Color naranja
+	    JTextField durationField = new JTextField("90");
+	    durationField.setFont(new Font("Arial", Font.PLAIN, 14));
+
+	    // Añadimos los campos y etiquetas al inputPanel
+	    inputPanel.add(titleFieldLabel);
+	    inputPanel.add(titleField);
+	    inputPanel.add(sportFieldLabel);
+	    inputPanel.add(sportField);
+	    inputPanel.add(distanceFieldLabel);
+	    inputPanel.add(distanceField);
+	    inputPanel.add(startDateFieldLabel);
+	    inputPanel.add(startDateSpinner);
+	    inputPanel.add(durationFieldLabel);
+	    inputPanel.add(durationField);
+
+	    panel.add(inputPanel);
+	    panel.add(Box.createVerticalStrut(20)); // Espaciado entre los campos y el botón
+
+	    // Botón de creación de sesión
+	    CustomButton createButton = new CustomButton("CREATE SESSION");
+	    createButton.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 19));
+	    createButton.setBackground(new Color(255, 69, 0)); // Naranja vibrante
+	    createButton.setFocusPainted(false);
+	    createButton.setPreferredSize(new Dimension(220, 40));
+	    createButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+	    
+	    JPanel buttonPanel = new JPanel();
+	    buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));  // Centra los componentes en el panel
+	    buttonPanel.setBackground(new Color(255, 240, 220)); // Fondo suave (opcional)
+
+	    // Añadir el botón al panel
+	    buttonPanel.add(createButton);
+
+	    // Añadir el panel al panel principal
+	    panel.add(buttonPanel);
+
+	    // Crear el frame
+	    createSessionFrame.add(panel);
+	    createSessionFrame.setVisible(true);
+
+	    createButton.addActionListener(e -> {
+	        String title = titleField.getText();
+	        String sport = sportField.getText();
+	        String distance = distanceField.getText();
+	        Date startDate = (Date) startDateSpinner.getValue(); 
+	        String duration = durationField.getText();
+	        
+	        
+	        if (userId.isEmpty() || token.isEmpty() || title.isEmpty() || sport.isEmpty() || distance.isEmpty() || duration.isEmpty()) {
+	            JOptionPane.showMessageDialog(createSessionFrame, "Please, fill in the blank spaces", "Error", JOptionPane.ERROR_MESSAGE);
+	            return;
+	        }
+	        
+	        try {
+	            TrainingSession response = controller.session(userId, token, title, sport, Float.parseFloat(distance), startDate, Float.parseFloat(duration));
+
+	            // Validación de la respuesta
+	            if (response == null || response.sessionId() == null || 
+	               response.sessionId().isEmpty() ||
+	               response.title() == null || response.title().isEmpty() || response.sport() == null || response.sport().isEmpty() ||
+	               response.distance() == null || response.distance() <= 0 || response.startDate() == null || response.duration() == null || response.duration() <= 0)  {
+	                JOptionPane.showMessageDialog(createSessionFrame, "Error: Invalid Server Response.", "Error", JOptionPane.ERROR_MESSAGE);
+	                return;
+	            }
+
+	            String sessionId = response.sessionId();
+
+	            JOptionPane.showMessageDialog(createSessionFrame, "Session created successfully:\nSession ID: " + sessionId);
+	            createSessionFrame.dispose();
+	            
+	        } catch (Exception ex) {
+	            ex.printStackTrace();
+	            JOptionPane.showMessageDialog(createSessionFrame, "Error: " + ex.getMessage());
+	        }
+	    });
 	}
+
+
+
+
 	
 	private static void querySessions() {
 	    JFrame createSessionsFrame = new JFrame("User Training Sessions");
@@ -588,101 +671,204 @@ public class SwingClientGUI extends JFrame{
 
 
 	private static void setupChallenge() {
+	    JFrame createChallengeFrame = new JFrame("Create Challenge");
+	    createChallengeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    createChallengeFrame.setSize(800, 600);
+	    createChallengeFrame.setLocationRelativeTo(null);
 
-		JFrame createChallengeFrame = new JFrame("Create Challenge");
-		createChallengeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		createChallengeFrame.setSize(400, 600);
-		createChallengeFrame.setLocationRelativeTo(null);
+	    // Crear el panel superior con fondo degradado
+	    JPanel topPanel = new JPanel() {
+	        @Override
+	        protected void paintComponent(Graphics g) {
+	            super.paintComponent(g);
+	            Graphics2D g2d = (Graphics2D) g;
 
-		JPanel panel = new JPanel(new GridLayout(8, 2));
+	            // Dibujar fondo degradado (blanco a naranja)
+	            GradientPaint gradient = new GradientPaint(0, 0, Color.WHITE, getWidth(), 0, new Color(252, 76, 2)); // De blanco a naranja
+	            g2d.setPaint(gradient);
+	            g2d.fillRect(0, 0, getWidth(), getHeight());
+	        }
+	    };
+	    topPanel.setPreferredSize(new Dimension(800, 100)); // Alto del panel
+	    topPanel.setLayout(new BorderLayout());
 
-		panel.add(new JLabel("Title:"));
-		JTextField titleField = new JTextField("Special Challenge");
-		panel.add(titleField);
+	    // Título del panel superior
+	    JLabel topLabel = new JLabel("CREATE CHALLENGE", SwingConstants.CENTER);
+	    topLabel.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 25));
+	    topLabel.setForeground(Color.white);
+	    topPanel.add(topLabel, BorderLayout.CENTER);
 
-		panel.add(new JLabel("Sport:"));
-		JTextField sportField = new JTextField("Football");
-		panel.add(sportField);
+	    // Añadir el panel superior al marco
+	    createChallengeFrame.add(topPanel, BorderLayout.NORTH);
 
-		panel.add(new JLabel("Distance (km):"));
-		JTextField distanceField = new JTextField("45");
-		panel.add(distanceField);
+	    // Crear el panel principal con los campos de entrada (como en el código anterior)
+	    JPanel panel = new JPanel();
+	    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+	    panel.setBackground(new Color(255, 240, 220)); // Color de fondo suave (tono cálido)
 
-		panel.add(new JLabel("Start Date:"));
-        JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
-        startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
-        startDateSpinner.setValue(new Date());
-        panel.add(startDateSpinner);
-		
-        panel.add(new JLabel("End Date:"));
-        JSpinner endDateSpinner = new JSpinner(new SpinnerDateModel());
-        endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
-        endDateSpinner.setValue(new Date());
-        panel.add(endDateSpinner);
+	    panel.add(Box.createVerticalStrut(20)); // Espaciado entre el título y los campos
 
-		panel.add(new JLabel("Target Time (minutes):"));
-		JTextField targetTimeField = new JTextField("90");
-		panel.add(targetTimeField);
+	    // Crear los campos de entrada con un panel contenedor
+	    JPanel inputPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+	    inputPanel.setBackground(new Color(255, 240, 220)); // Fondo suave para los campos
+	    inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Margen interno
 
-		JButton createButton = new JButton("Set Up Challenge💪");
-		panel.add(createButton);
+	    // Fuente para los JLabel
+	    Font labelFont = new Font("Rockwell Extra Bold", Font.PLAIN, 19);  // Fuente para los JLabel
 
-		createChallengeFrame.add(panel);
-		createChallengeFrame.setVisible(true);
+	    // Crear los JLabel con la nueva fuente
+	    JLabel titleFieldLabel = new JLabel("Title:");
+	    titleFieldLabel.setFont(labelFont);
+	    titleFieldLabel.setForeground(new Color(252, 76, 2)); // Color naranja
+	    JTextField titleField = new JTextField("Special Challenge");
+	    titleField.setFont(new Font("Arial", Font.PLAIN, 14));
 
-		createButton.addActionListener(e -> {
-			String title = titleField.getText();
-			String sport = sportField.getText();
-			String distance = distanceField.getText();
-			Date startDate = (Date) startDateSpinner.getValue(); 
-			Date endDate = (Date) endDateSpinner.getValue(); 
-			String targetTime = targetTimeField.getText();
-			
-			
-            if (userId.isEmpty() || token.isEmpty() || title.isEmpty() || sport.isEmpty() || distance.isEmpty() || targetTime.isEmpty()) {
-                JOptionPane.showMessageDialog(createChallengeFrame, "Please, fill in the blank spaces", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
-			try {
-				 Challenge response = controller.challenge(userId, token, title, startDate, endDate, Integer.parseInt(targetTime), Float.parseFloat(distance), sport);
+	    JLabel sportFieldLabel = new JLabel("Sport:");
+	    sportFieldLabel.setFont(labelFont);
+	    sportFieldLabel.setForeground(new Color(252, 76, 2)); // Color naranja
+	    JTextField sportField = new JTextField("Football");
+	    sportField.setFont(new Font("Arial", Font.PLAIN, 14));
 
-	                // Validación de la respuesta
-				 if (response == null || response.challengeId() == null || 
-				    response.challengeId().isEmpty() || response.userId() == null || response.userId().isEmpty() ||
-					response.challengeName() == null || response.challengeName().isEmpty() || response.sport() == null || response.sport().isEmpty() ||
-					response.targetTime() == null || response.targetTime() <= 0 || response.startDate() == null || response.targetDistance() == null || response.targetDistance() <= 0)  {
-	                    JOptionPane.showMessageDialog(createChallengeFrame, "Error: Invalid Server Response.", "Error", JOptionPane.ERROR_MESSAGE);
-	                    return;
-	                }
+	    JLabel distanceFieldLabel = new JLabel("Distance (km):");
+	    distanceFieldLabel.setFont(labelFont);
+	    distanceFieldLabel.setForeground(new Color(252, 76, 2)); // Color naranja
+	    JTextField distanceField = new JTextField("45");
+	    distanceField.setFont(new Font("Arial", Font.PLAIN, 14));
 
-	                String challengeId = response.challengeId();
+	    JLabel startDateFieldLabel = new JLabel("Start Date:");
+	    startDateFieldLabel.setFont(labelFont);
+	    startDateFieldLabel.setForeground(new Color(252, 76, 2)); // Color naranja
+	    JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
+	    startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
+	    startDateSpinner.setValue(new Date());
 
-	                JOptionPane.showMessageDialog(createChallengeFrame, "Challenge created succesfully:\nChallenge ID: " + challengeId);
-	                createChallengeFrame.dispose();
-	                
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				JOptionPane.showMessageDialog(createChallengeFrame, "Error: " + ex.getMessage());
-			}
-		});
+	    JLabel endDateFieldLabel = new JLabel("End Date:");
+	    endDateFieldLabel.setFont(labelFont);
+	    endDateFieldLabel.setForeground(new Color(252, 76, 2)); // Color naranja
+	    JSpinner endDateSpinner = new JSpinner(new SpinnerDateModel());
+	    endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
+	    endDateSpinner.setValue(new Date());
+
+	    JLabel targetTimeFieldLabel = new JLabel("Target Time (minutes):");
+	    targetTimeFieldLabel.setFont(labelFont);
+	    targetTimeFieldLabel.setForeground(new Color(252, 76, 2)); // Color naranja
+	    JTextField targetTimeField = new JTextField("90");
+	    targetTimeField.setFont(new Font("Arial", Font.PLAIN, 14));
+
+	    // Añadimos los campos y etiquetas al inputPanel
+	    inputPanel.add(titleFieldLabel);
+	    inputPanel.add(titleField);
+	    inputPanel.add(sportFieldLabel);
+	    inputPanel.add(sportField);
+	    inputPanel.add(distanceFieldLabel);
+	    inputPanel.add(distanceField);
+	    inputPanel.add(startDateFieldLabel);
+	    inputPanel.add(startDateSpinner);
+	    inputPanel.add(endDateFieldLabel);
+	    inputPanel.add(endDateSpinner);
+	    inputPanel.add(targetTimeFieldLabel);
+	    inputPanel.add(targetTimeField);
+
+	    panel.add(inputPanel);
+	    panel.add(Box.createVerticalStrut(20)); // Espaciado entre los campos y el botón
+
+	    // Botón de creación de desafío
+	    CustomButton createButton = new CustomButton("CREATE SESSION");
+	    createButton.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 19));
+	    createButton.setBackground(new Color(255, 69, 0)); // Naranja vibrante
+	    createButton.setFocusPainted(false);
+	    createButton.setPreferredSize(new Dimension(220, 40));
+	    createButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+	    JPanel buttonPanel = new JPanel();
+	    buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));  // Centra los componentes en el panel
+	    buttonPanel.setBackground(new Color(255, 240, 220)); // Fondo suave (opcional)
+
+	    // Añadir el botón al panel
+	    buttonPanel.add(createButton);
+
+	    // Añadir el panel al panel principal
+	    panel.add(buttonPanel);
+
+	    // Crear el frame
+	    createChallengeFrame.add(panel);
+	    createChallengeFrame.setVisible(true);
+
+	    createButton.addActionListener(e -> {
+	        String title = titleField.getText();
+	        String sport = sportField.getText();
+	        String distance = distanceField.getText();
+	        Date startDate = (Date) startDateSpinner.getValue(); 
+	        Date endDate = (Date) endDateSpinner.getValue(); 
+	        String targetTime = targetTimeField.getText();
+
+	        if (userId.isEmpty() || token.isEmpty() || title.isEmpty() || sport.isEmpty() || distance.isEmpty() || targetTime.isEmpty()) {
+	            JOptionPane.showMessageDialog(createChallengeFrame, "Please, fill in the blank spaces", "Error", JOptionPane.ERROR_MESSAGE);
+	            return;
+	        }
+
+	        try {
+	            Challenge response = controller.challenge(userId, token, title, startDate, endDate, Integer.parseInt(targetTime), Float.parseFloat(distance), sport);
+
+	            // Validación de la respuesta
+	            if (response == null || response.challengeId() == null || 
+	               response.challengeId().isEmpty() || response.userId() == null || response.userId().isEmpty() ||
+	               response.challengeName() == null || response.challengeName().isEmpty() || response.sport() == null || response.sport().isEmpty() ||
+	               response.targetTime() == null || response.targetTime() <= 0 || response.startDate() == null || response.targetDistance() == null || response.targetDistance() <= 0)  {
+	                JOptionPane.showMessageDialog(createChallengeFrame, "Error: Invalid Server Response.", "Error", JOptionPane.ERROR_MESSAGE);
+	                return;
+	            }
+
+	            String challengeId = response.challengeId();
+
+	            JOptionPane.showMessageDialog(createChallengeFrame, "Challenge created successfully:\nChallenge ID: " + challengeId);
+	            createChallengeFrame.dispose();
+
+	        } catch (Exception ex) {
+	            ex.printStackTrace();
+	            JOptionPane.showMessageDialog(createChallengeFrame, "Error: " + ex.getMessage());
+	        }
+	    });
 	}
+
 	
 	private static void queryChallenges() {
 	    JFrame createChallengesFrame = new JFrame("Search Challenges");
 	    createChallengesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	    createChallengesFrame.setSize(500, 300);
+	    createChallengesFrame.setSize(800, 600);
+	    createChallengesFrame.setResizable(false);
 	    createChallengesFrame.setLayout(new BorderLayout());
 	    createChallengesFrame.setLocationRelativeTo(null);
 
-	    JPanel topPanel = new JPanel();
-	    topPanel.setLayout(new GridBagLayout());
+	    // Panel superior con el gradiente y título
+	    JPanel topPanel = new JPanel() {
+	        @Override
+	        protected void paintComponent(Graphics g) {
+	            super.paintComponent(g);
+	            Graphics2D g2d = (Graphics2D) g;
+
+	            GradientPaint gradient = new GradientPaint(0, 0, Color.WHITE, getWidth(), 0, new Color(252, 76, 2));
+	            g2d.setPaint(gradient);
+	            g2d.fillRect(0, 0, getWidth(), getHeight());
+	        }
+	    };
+	    topPanel.setPreferredSize(new Dimension(800, 100));
+	    topPanel.setLayout(new BorderLayout());
+
+	    JLabel topLabel = new JLabel("CHALLENGES", SwingConstants.CENTER);
+	    topLabel.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 25));
+	    topLabel.setForeground(Color.WHITE);
+	    topPanel.add(topLabel, BorderLayout.CENTER);
+	    createChallengesFrame.add(topPanel, BorderLayout.NORTH);
+
+	    // Panel para los controles de búsqueda
+	    JPanel controlsPanel = new JPanel();
+	    controlsPanel.setLayout(new GridBagLayout());
 
 	    GridBagConstraints gbc = new GridBagConstraints();
 	    gbc.fill = GridBagConstraints.HORIZONTAL;
 	    gbc.insets = new Insets(5, 5, 5, 5);
 
-	    // Componentes
 	    JLabel startDateLabel = new JLabel("Start Date:");
 	    JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
 	    startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
@@ -694,48 +880,52 @@ public class SwingClientGUI extends JFrame{
 	    endDateSpinner.setValue(new Date());
 
 	    JLabel sportLabel = new JLabel("Sport:");
-	    JTextField sportField = new JTextField("Running");
+	    JTextField sportField = new JTextField();
 
 	    JButton fetchButton = new JButton("Get Challenges");
 
+	    // Colocar los componentes en la primera fila
 	    gbc.gridx = 0;
 	    gbc.gridy = 0;
-	    topPanel.add(startDateLabel, gbc);
+	    controlsPanel.add(startDateLabel, gbc);
 
 	    gbc.gridx = 1;
-	    topPanel.add(startDateSpinner, gbc);
+	    controlsPanel.add(startDateSpinner, gbc);
 
+	    gbc.gridx = 2;
+	    controlsPanel.add(endDateLabel, gbc);
+
+	    gbc.gridx = 3;
+	    controlsPanel.add(endDateSpinner, gbc);
+
+	    gbc.gridx = 4;
+	    controlsPanel.add(sportLabel, gbc);
+
+	    gbc.gridx = 5;
+	    gbc.weightx = 1.0;
+	    controlsPanel.add(sportField, gbc);
+
+	    // Colocar el botón en la segunda fila
 	    gbc.gridx = 0;
 	    gbc.gridy = 1;
-	    topPanel.add(endDateLabel, gbc);
+	    gbc.gridwidth = 6; // El botón ocupa toda la fila
+	    gbc.weightx = 0;
+	    controlsPanel.add(fetchButton, gbc);
 
-	    gbc.gridx = 1;
-	    topPanel.add(endDateSpinner, gbc);
-
-	    gbc.gridx = 0;
-	    gbc.gridy = 2;
-	    topPanel.add(sportLabel, gbc);
-
-	    gbc.gridx = 1;
-	    topPanel.add(sportField, gbc);
-
-	    gbc.gridx = 0;
-	    gbc.gridy = 3;
-	    gbc.gridwidth = 2;  // El botón debe ocupar las dos columnas
-	    topPanel.add(fetchButton, gbc);
+	    createChallengesFrame.add(controlsPanel, BorderLayout.CENTER);
 
 	    // Lista para mostrar las sesiones
 	    DefaultListModel<Challenge> listModel = new DefaultListModel<>();
 	    JList<Challenge> sessionList = new JList<>(listModel);
 	    JScrollPane scrollPane = new JScrollPane(sessionList);
 
-	    // Personalizar el renderizado de la lista (solo mostrar información específica)
+	    // Configuración del renderizado personalizado para la lista
 	    sessionList.setCellRenderer(new ListCellRenderer<Challenge>() {
 	        @Override
 	        public Component getListCellRendererComponent(JList<? extends Challenge> list, Challenge value, int index, boolean isSelected, boolean cellHasFocus) {
 	            JLabel label = new JLabel();
 	            if (value != null) {
-	                label.setText(String.format("%s - %s - %.2f km - %s", 
+	                label.setText(String.format("%s - %s - %.2f km - %s",
 	                        value.challengeName(), value.sport(), value.targetDistance(), value.startDate()));
 	            }
 	            label.setOpaque(true);
@@ -750,32 +940,29 @@ public class SwingClientGUI extends JFrame{
 	        }
 	    });
 
-	    // Añadir panels al frame
-	    createChallengesFrame.add(topPanel, BorderLayout.NORTH);
-	    createChallengesFrame.add(scrollPane, BorderLayout.CENTER);
+	    createChallengesFrame.add(scrollPane, BorderLayout.SOUTH);
 
 	    fetchButton.addActionListener(e -> {
-	        listModel.clear();  // Limpiar la lista antes de actualizar
+	        listModel.clear();
 	        try {
 	            Date startDate = (Date) startDateSpinner.getValue();
 	            Date endDate = (Date) endDateSpinner.getValue();
 	            String sport = sportField.getText();
-	            
+
 	            List<Challenge> challenges = controller.challenges(startDate, endDate, sport);
 
 	            if (challenges.isEmpty()) {
-	                listModel.addElement(null);  // No challenges found
+	                listModel.addElement(null);
 	            } else {
 	                for (Challenge challenge : challenges) {
-	                    listModel.addElement(challenge); // Añadir el objeto Challenge
+	                    listModel.addElement(challenge);
 	                }
 	            }
 	        } catch (Exception ex) {
-	            listModel.addElement(null);  // Error loading challenges
+	            listModel.addElement(null);
 	        }
 	    });
 
-	    
 	    sessionList.addMouseListener(new MouseAdapter() {
 	        @Override
 	        public void mouseClicked(MouseEvent e) {
@@ -784,20 +971,20 @@ public class SwingClientGUI extends JFrame{
 	                Challenge selectedChallenge = listModel.getElementAt(index);
 	                if (selectedChallenge != null) {
 	                    String challengeId = selectedChallenge.challengeId();
-	                    
-	                    try {
-	        	            List<Challenge> challenges = controller.challengeParticipant(challengeId, userId, token);
 
-	        	            if (challenges.isEmpty()) {
-	        	                JOptionPane.showMessageDialog(createChallengesFrame, "Challenge not found.", "Info", JOptionPane.INFORMATION_MESSAGE);
-	        	            } else {
-	        	                StringBuilder result = new StringBuilder("Participation registered:\n");
-	        	                JOptionPane.showMessageDialog(createChallengesFrame, result.toString(), "Challenges", JOptionPane.INFORMATION_MESSAGE);
-	        	            }
-	        	        } catch (Exception ex) {
-	        	            ex.printStackTrace();
-	        	            JOptionPane.showMessageDialog(createChallengesFrame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-	        	        }
+	                    try {
+	                        List<Challenge> challenges = controller.challengeParticipant(challengeId, userId, token);
+
+	                        if (challenges.isEmpty()) {
+	                            JOptionPane.showMessageDialog(createChallengesFrame, "Challenge not found.", "Info", JOptionPane.INFORMATION_MESSAGE);
+	                        } else {
+	                            StringBuilder result = new StringBuilder("Participation registered:\n");
+	                            JOptionPane.showMessageDialog(createChallengesFrame, result.toString(), "Challenges", JOptionPane.INFORMATION_MESSAGE);
+	                        }
+	                    } catch (Exception ex) {
+	                        ex.printStackTrace();
+	                        JOptionPane.showMessageDialog(createChallengesFrame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	                    }
 	                }
 	            }
 	        }
@@ -805,6 +992,7 @@ public class SwingClientGUI extends JFrame{
 
 	    createChallengesFrame.setVisible(true);
 	}
+
 
 
     
