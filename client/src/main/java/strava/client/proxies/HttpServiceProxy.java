@@ -297,7 +297,7 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 	        String formattedStartDate = dateFormat.format(startDate);
 	        String formattedEndDate = dateFormat.format(endDate);
 	        
-	    	System.out.println(startDate + " " + endDate);
+	    	System.out.println(startDate + " " + endDate + " " + sport);
 	    	System.out.println(formattedStartDate + " " + formattedEndDate);
 	        // Construir la URL con los parámetros de consulta
 	        StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/challenges/challenges");
@@ -312,7 +312,7 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 	            hasParams = true;
 	        }
 	        if (sport != null) {
-	            urlBuilder.append(hasParams ? "&" : "?").append("sport=").append(sport);
+	            urlBuilder.append(hasParams ? "&" : "?").append("Sport=").append(sport);
 	        }
 
 	        HttpRequest request = HttpRequest.newBuilder()
