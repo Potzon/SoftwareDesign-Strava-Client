@@ -111,7 +111,7 @@ public class SwingClientGUI extends JFrame{
                  token = response.get("token");
 
                  JOptionPane.showMessageDialog(frame, "Login Successful:\nUser ID: " + userId + ", Token: " + token);
-                 openAPIMenuWindow2(frame);
+                 openAPIMenuWindow(frame);
                  frame.setVisible(false);
              } catch (Exception ex) {
                  JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -123,126 +123,7 @@ public class SwingClientGUI extends JFrame{
          return frame;
     }
 
-    private static void openLoginWindow(JFrame initialFrame) {
-        JFrame loginFrame = new JFrame("Login");
-        loginFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        loginFrame.setSize(400, 300);
 
-        // Usar GridBagLayout para los componentes
-        JPanel loginPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;  // Asegura que los componentes se estiren horizontalmente
-        gbc.insets = new Insets(5, 5, 5, 5);  // Espaciado entre componentes
-
-        // Componentes de la interfaz
-        JLabel emailLabel = new JLabel("Email:");
-        JTextField emailField = new JTextField("user1@example.com");
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;  // El label y el campo de texto ocuparán dos columnas
-        loginPanel.add(emailLabel, gbc);
-        gbc.gridy = 1;
-        loginPanel.add(emailField, gbc);
-
-        JLabel passwordLabel = new JLabel("Password:");
-        JPasswordField passwordField = new JPasswordField("password123");
-        gbc.gridy = 2;
-        loginPanel.add(passwordLabel, gbc);
-        gbc.gridy = 3;
-        loginPanel.add(passwordField, gbc);
-
-        JLabel providerLabel = new JLabel("External Provider:");
-        gbc.gridy = 4;
-        loginPanel.add(providerLabel, gbc);
-
-        String[] providers = { "Google", "Facebook" };
-        JComboBox<String> providerComboBox = new JComboBox<>(providers);
-        gbc.gridy = 5;
-        loginPanel.add(providerComboBox, gbc);
-
-        // Centrar y hacer que el botón ocupe toda la fila
-        gbc.gridx = 0;
-        gbc.gridy = 6;
-        gbc.gridwidth = 2;  // El botón ocupará las dos columnas
-        gbc.weightx = 1.0;  // Hace que el botón ocupe todo el espacio horizontal disponible
-        gbc.weighty = 1.0;  // Hace que el botón ocupe todo el espacio vertical disponible
-        gbc.anchor = GridBagConstraints.CENTER;  // Centra el botón
-        JButton loginButton = new JButton("Login");
-        loginPanel.add(loginButton, gbc);
-
-        // Ajustar constraints de la ventana
-        loginFrame.add(loginPanel);
-        loginFrame.setVisible(true);
-
-        loginButton.addActionListener(e -> {
-            String email = emailField.getText();
-            String password = new String(passwordField.getPassword());
-            String externalProv = providerComboBox.getSelectedItem().toString();
-
-            // Validación de campos vacíos
-            if (email.isEmpty() || password.isEmpty() || externalProv.isEmpty()) {
-                JOptionPane.showMessageDialog(loginFrame, "Please, fill in the blank spaces", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            try {
-                Credentials credentials = new Credentials(email, password, externalProv);
-                var response = controller.login(credentials);
-
-                // Validación de la respuesta
-                if (response == null || !response.containsKey("userId") || !response.containsKey("token")) {
-                    JOptionPane.showMessageDialog(loginFrame, "Error: Invalid Server Response.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                userId = response.get("userId");
-                token = response.get("token");
-
-                JOptionPane.showMessageDialog(loginFrame, "Login Successful:\nUser ID: " + userId + ", Token: " + token);
-                loginFrame.dispose();
-                openAPIMenuWindow(initialFrame);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(loginFrame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-    }
-
-
-
-    private static void openAPIMenuWindow(JFrame initialFrame) {
-
-        JFrame menuFrame = new JFrame("API Menu");
-        menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        menuFrame.setSize(400, 400);
-        menuFrame.setLocationRelativeTo(null);
-
-        JPanel menuPanel = new JPanel(new GridLayout(6, 1));
-
-        JButton logoutButton = new JButton("Logout");
-        JButton createSessionButton = new JButton("Create a training session");
-        JButton querySessionsButton = new JButton("Query training sessions");
-        JButton setupChallengeButton = new JButton("Set up a challenge");
-        JButton queryChallengesButton = new JButton("Challenges");
-        JButton challengeStatusButton = new JButton("Challenges status");
-
-        menuPanel.add(logoutButton);
-        menuPanel.add(createSessionButton);
-        menuPanel.add(querySessionsButton);
-        menuPanel.add(setupChallengeButton);
-        menuPanel.add(queryChallengesButton);
-        menuPanel.add(challengeStatusButton);
-
-        menuFrame.add(menuPanel);
-        menuFrame.setVisible(true);
-
-        logoutButton.addActionListener(e -> logout(menuFrame, initialFrame));
-        createSessionButton.addActionListener(e -> openCreateSessionWindow());
-		querySessionsButton.addActionListener(e -> querySessions());
-		setupChallengeButton.addActionListener(e -> setupChallenge());
-		queryChallengesButton.addActionListener(e -> queryChallenges());
-		challengeStatusButton.addActionListener(e -> challengesStatus());
-       
-    }
     
     static class CustomButton extends JButton {
     	 public CustomButton(String text) {
@@ -257,12 +138,12 @@ public class SwingClientGUI extends JFrame{
     	     setCursor(new Cursor(Cursor.HAND_CURSOR));
     	 }
     	}
-    private static void openAPIMenuWindow2(JFrame initialFrame) {
+    private static void openAPIMenuWindow(JFrame initialFrame) {
 
         JFrame menuFrame = new JFrame("STRAVA MENU");
         menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         menuFrame.setSize(800, 600);
-        
+
         JPanel topPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -279,14 +160,14 @@ public class SwingClientGUI extends JFrame{
 
         topPanel.setPreferredSize(new Dimension(800, 100));
         topPanel.setLayout(null);
-        
+
         JLabel logoLabel = new JLabel();
         logoLabel.setBounds(10, 19, 232, 70); // Ajustar tamaño del label
         ImageIcon logoIcon = new ImageIcon(SwingClientGUI.class.getResource("strava-logo-1536x323.png"));
         Image scaledImage = logoIcon.getImage().getScaledInstance(232, 70, Image.SCALE_SMOOTH); // Ajustar tamaño de la imagen
         logoLabel.setIcon(new ImageIcon(scaledImage));
         topPanel.add(logoLabel);
-        
+
         JButton logOutButton = new JButton();
         logOutButton.setBounds(712, 11, 58, 58); // Posición y tamaño del botón
         ImageIcon loginIcon = new ImageIcon(SwingClientGUI.class.getResource("log_off-512.png")); // Ruta de la imagen del botón
@@ -297,63 +178,65 @@ public class SwingClientGUI extends JFrame{
         logOutButton.setBorderPainted(false);
         logOutButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         topPanel.add(logOutButton);
-        
+
         menuFrame.getContentPane().add(topPanel, BorderLayout.NORTH);
-        
+
         JLabel lblNewLabel = new JLabel("LOGOUT");
         lblNewLabel.setBounds(712, 67, 76, 14);
         topPanel.add(lblNewLabel);
-        
-        JPanel mainPanel = new JPanel();
-        mainPanel.setBackground(new Color(255, 255, 255));
 
-        menuFrame.getContentPane().add(mainPanel, BorderLayout.CENTER);
-        mainPanel.setLayout(null);
-        
+        // Crear el mainPanel
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(null); // Layout absoluto
+
+        // Crear un JLabel para la imagen de fondo
+        JLabel backgroundLabel = new JLabel();
+        backgroundLabel.setBounds(0, -20, 800, 483); // Tamaño y posición del fondo
+        ImageIcon backgroundIcon = new ImageIcon(SwingClientGUI.class.getResource("thumb-1920-504095.jpg"));
+        Image scaledBackground = backgroundIcon.getImage().getScaledInstance(800, 500, Image.SCALE_SMOOTH); // Escalar la imagen
+        backgroundLabel.setIcon(new ImageIcon(scaledBackground));
+
+        // Crear los botones y añadirlos al panel (por encima del fondo)
         CustomButton newChallengeBtn = new CustomButton("SET UP A NEW CHALLENGE");
-        newChallengeBtn.setText("SET UP A NEW CHALLENGE");
         newChallengeBtn.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 19));
         newChallengeBtn.setBackground(new Color(255, 69, 0));
         newChallengeBtn.setForeground(new Color(255, 69, 0));
         newChallengeBtn.setBounds(50, 113, 352, 59);
         mainPanel.add(newChallengeBtn);
-        
-        CustomButton activeChallengesBtn = new CustomButton("FACE UP A NEW CHALLENGE");
-        activeChallengesBtn.setText("ACTIVE CHALLENGES");
-        activeChallengesBtn.setForeground(new Color(255, 69, 0));
+
+        CustomButton activeChallengesBtn = new CustomButton("ACTIVE CHALLENGES");
         activeChallengesBtn.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 19));
-        activeChallengesBtn.setBackground(new Color(255, 69, 0));
+        activeChallengesBtn.setForeground(new Color(255, 69, 0));
         activeChallengesBtn.setBounds(50, 244, 352, 59);
         mainPanel.add(activeChallengesBtn);
-        
-        CustomButton newSessionBtn = new CustomButton("FACE UP A NEW CHALLENGE");
-        newSessionBtn.setText("START A NEW SESSION");
-        newSessionBtn.setForeground(new Color(255, 69, 0));
+
+        CustomButton newSessionBtn = new CustomButton("START A NEW SESSION");
         newSessionBtn.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 19));
-        newSessionBtn.setBackground(new Color(255, 69, 0));
+        newSessionBtn.setForeground(new Color(255, 69, 0));
         newSessionBtn.setBounds(412, 113, 352, 59);
         mainPanel.add(newSessionBtn);
-        
-        CustomButton sessionsBtn = new CustomButton("FACE UP A NEW CHALLENGE");
-        sessionsBtn.setText("MY SESSIONS");
-        sessionsBtn.setForeground(new Color(255, 69, 0));
+
+        CustomButton sessionsBtn = new CustomButton("MY SESSIONS");
         sessionsBtn.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 19));
-        sessionsBtn.setBackground(new Color(255, 69, 0));
+        sessionsBtn.setForeground(new Color(255, 69, 0));
         sessionsBtn.setBounds(412, 244, 352, 59);
         mainPanel.add(sessionsBtn);
-        
-        menuFrame.setLocationRelativeTo(null);
-        menuFrame.setVisible(true);
 
-        menuFrame.add(mainPanel);
-        menuFrame.setVisible(true);
+        // Asegurar que la imagen de fondo esté detrás de los botones
 
+        mainPanel.add(backgroundLabel);  // Primero añades la imagen de fondo
+        mainPanel.setComponentZOrder(backgroundLabel, mainPanel.getComponentCount() - 1);
+        menuFrame.getContentPane().add(mainPanel, BorderLayout.CENTER);
+
+        // Acciones de los botones
         logOutButton.addActionListener(e -> logout(menuFrame, initialFrame));
         newChallengeBtn.addActionListener(e -> setupChallenge());
         activeChallengesBtn.addActionListener(e -> queryChallenges());
-        newSessionBtn.addActionListener(e ->  openCreateSessionWindow());
+        newSessionBtn.addActionListener(e -> openCreateSessionWindow());
         sessionsBtn.addActionListener(e -> querySessions());
-       
+
+        menuFrame.setLocationRelativeTo(null);
+        menuFrame.setVisible(true);
     }
 
 	private static void openRegisterWindow() {
