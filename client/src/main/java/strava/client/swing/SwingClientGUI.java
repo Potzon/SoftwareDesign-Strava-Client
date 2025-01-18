@@ -335,7 +335,7 @@ public class SwingClientGUI extends JFrame{
         mainPanel.add(newSessionBtn);
         
         CustomButton sessionsBtn = new CustomButton("FACE UP A NEW CHALLENGE");
-        sessionsBtn.setText("SESSION SUMMARY");
+        sessionsBtn.setText("MY SESSIONS");
         sessionsBtn.setForeground(new Color(255, 69, 0));
         sessionsBtn.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 19));
         sessionsBtn.setBackground(new Color(255, 69, 0));
@@ -349,10 +349,10 @@ public class SwingClientGUI extends JFrame{
         menuFrame.setVisible(true);
 
         logOutButton.addActionListener(e -> logout(menuFrame, initialFrame));
-        newChallengeBtn.addActionListener(e -> openCreateSessionWindow());
-        activeChallengesBtn.addActionListener(e -> querySessions());
-        newSessionBtn.addActionListener(e -> setupChallenge());
-        sessionsBtn.addActionListener(e -> queryChallenges());
+        newChallengeBtn.addActionListener(e -> setupChallenge());
+        activeChallengesBtn.addActionListener(e -> queryChallenges());
+        newSessionBtn.addActionListener(e ->  openCreateSessionWindow());
+        sessionsBtn.addActionListener(e -> querySessions());
        
     }
 
@@ -857,12 +857,6 @@ public class SwingClientGUI extends JFrame{
 	        	                JOptionPane.showMessageDialog(createChallengesFrame, "Challenge not found.", "Info", JOptionPane.INFORMATION_MESSAGE);
 	        	            } else {
 	        	                StringBuilder result = new StringBuilder("Participation registered:\n");
-	        	                for (Challenge challenge : challenges) {
-	        	                    result.append("ID: ").append(challenge.challengeId())
-	        	                          .append(", Name: ").append(challenge.challengeName())
-	        	                          .append(", Sport: ").append(challenge.sport())
-	        	                          .append("\n");
-	        	                }
 	        	                JOptionPane.showMessageDialog(createChallengesFrame, result.toString(), "Challenges", JOptionPane.INFORMATION_MESSAGE);
 	        	            }
 	        	        } catch (Exception ex) {
