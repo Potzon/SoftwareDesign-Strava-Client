@@ -245,52 +245,100 @@ public class SwingClientGUI extends JFrame{
         menuFrame.setVisible(true);
     }
 
-	private static void openRegisterWindow() {
- 		JFrame registerFrame = new JFrame("Register");
- 		registerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
- 		registerFrame.setSize(400, 600);
- 		registerFrame.setLocationRelativeTo(null);
+    private static void openRegisterWindow() {
+		JFrame registerFrame = new JFrame("Register");
+        registerFrame.setResizable(false);
+        registerFrame.setSize(1024, 670);
+        registerFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        registerFrame.getContentPane().setLayout(null);
+        registerFrame.setLocationRelativeTo(null);
 
- 		JPanel registerPanel = new JPanel(new GridLayout(12, 2));
+        // Background image
+        JLabel lblNewLabel = new JLabel("");
+        lblNewLabel.setIcon(new ImageIcon(SwingClientGUI.class.getResource("regUI.jpg")));
+        lblNewLabel.setBounds(0, 0, 1024, 633);
+        registerFrame.getContentPane().add(lblNewLabel);
 
- 		// Campos para el formulario
- 		registerPanel.add(new JLabel("Email:"));
- 		JTextField emailField = new JTextField("god@gmail.com");
- 		registerPanel.add(emailField);
+        // Labels and text fields
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setForeground(Color.BLACK);
+        emailLabel.setBounds(300, 150, 200, 30);
+        lblNewLabel.add(emailLabel);
 
- 		registerPanel.add(new JLabel("Password:"));
- 		JPasswordField passwordField = new JPasswordField("123");
- 		registerPanel.add(passwordField);
+        JTextField emailField = new JTextField("god@gmail.com");
+        emailField.setBounds(400, 150, 200, 30);
+        lblNewLabel.add(emailField);
 
- 		registerPanel.add(new JLabel("Name:"));
- 		JTextField nameField = new JTextField("God");
- 		registerPanel.add(nameField);
+        JLabel passwordLabel = new JLabel("Password:");
+        passwordLabel.setForeground(Color.BLACK);
+        passwordLabel.setBounds(300, 200, 200, 30);
+        lblNewLabel.add(passwordLabel);
 
- 		registerPanel.add(new JLabel("Birthdate (yyyy-MM-dd):"));
- 		JTextField birthdateField = new JTextField("2004-02-29");
- 		registerPanel.add(birthdateField);
+        JPasswordField passwordField = new JPasswordField("password123");
+        passwordField.setBounds(400, 200, 200, 30);
+        lblNewLabel.add(passwordField);
 
- 		registerPanel.add(new JLabel("Weight (kg):"));
- 		JTextField weightField = new JTextField("50");
- 		registerPanel.add(weightField);
+        JLabel nameLabel = new JLabel("Name:");
+        nameLabel.setForeground(Color.BLACK);
+        nameLabel.setBounds(300, 250, 200, 30);
+        lblNewLabel.add(nameLabel);
 
- 		registerPanel.add(new JLabel("Height (cm):"));
- 		JTextField heightField = new JTextField("180");
- 		registerPanel.add(heightField);
+        JTextField nameField = new JTextField("Godtzon");
+        nameField.setBounds(400, 250, 200, 30);
+        lblNewLabel.add(nameField);
 
- 		registerPanel.add(new JLabel("Max Heart Rate:"));
- 		JTextField maxHeartRateField = new JTextField("150");
- 		registerPanel.add(maxHeartRateField);
+        JLabel birthdateLabel = new JLabel("Birthdate (y-M-d):");
+        birthdateLabel.setForeground(Color.BLACK);
+        birthdateLabel.setBounds(300, 300, 200, 30);
+        lblNewLabel.add(birthdateLabel);
 
- 		registerPanel.add(new JLabel("Rest Heart Rate:"));
- 		JTextField restHeartRateField = new JTextField("81");
- 		registerPanel.add(restHeartRateField);
+        JTextField birthdateField = new JTextField("2004-02-29");
+        birthdateField.setBounds(400, 300, 200, 30);
+        lblNewLabel.add(birthdateField);
 
- 		JButton registerButton = new JButton("Register");
- 		registerPanel.add(registerButton);
+        JLabel weightLabel = new JLabel("Weight (kg):");
+        weightLabel.setForeground(Color.BLACK);
+        weightLabel.setBounds(300, 350, 200, 30);
+        lblNewLabel.add(weightLabel);
 
- 		registerFrame.add(registerPanel);
- 		registerFrame.setVisible(true);
+        JTextField weightField = new JTextField("80");
+        weightField.setBounds(400, 350, 200, 30);
+        lblNewLabel.add(weightField);
+
+        JLabel heightLabel = new JLabel("Height (cm):");
+        heightLabel.setForeground(Color.BLACK);
+        heightLabel.setBounds(300, 400, 200, 30);
+        lblNewLabel.add(heightLabel);
+
+        JTextField heightField = new JTextField("180");
+        heightField.setBounds(400, 400, 200, 30);
+        lblNewLabel.add(heightField);
+
+        JLabel maxHeartRateLabel = new JLabel("Max Heart Rate:");
+        maxHeartRateLabel.setForeground(Color.BLACK);
+        maxHeartRateLabel.setBounds(300, 450, 200, 30);
+        lblNewLabel.add(maxHeartRateLabel);
+
+        JTextField maxHeartRateField = new JTextField("150");
+        maxHeartRateField.setBounds(400, 450, 200, 30);
+        lblNewLabel.add(maxHeartRateField);
+
+        JLabel restHeartRateLabel = new JLabel("Rest Heart Rate:");
+        restHeartRateLabel.setForeground(Color.BLACK);
+        restHeartRateLabel.setBounds(300, 500, 200, 30);
+        lblNewLabel.add(restHeartRateLabel);
+
+        JTextField restHeartRateField = new JTextField("70");
+        restHeartRateField.setBounds(400, 500, 200, 30);
+        lblNewLabel.add(restHeartRateField);
+
+        JButton registerButton = new JButton("Register");
+        registerButton.setBounds(425, 550, 100, 30);
+        lblNewLabel.add(registerButton);
+
+        // Set layout and visibility
+        lblNewLabel.setLayout(null);
+        registerFrame.setVisible(true);
 
  		registerButton.addActionListener(e -> {
  			String email = emailField.getText();
