@@ -24,5 +24,5 @@ public interface IStravaServiceProxy {
     Challenge challenge(String userId, String token, String challengeName, Date startDate, Date endDate, int targetTime, Float targetDistance, String sport);
     List<Challenge> challenges(Date startDate, Date endDate, String sport);
     List<Challenge> challengeParticipant(String challengeId, String userId, String token);
-    Map<String, Float> challengeStatus(String userId, String token);
+    Map<String, Integer> challengeStatus(String userId, String token);
 }

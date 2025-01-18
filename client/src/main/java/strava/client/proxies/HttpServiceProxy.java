@@ -375,23 +375,24 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 	}
 	
 	@Override
-	public Map<String, Float> challengeStatus(String userId, String token) {
+	public Map<String, Integer> challengeStatus(String userId, String token) {
 	    try {
+	        // Usar GET en lugar de POST
 	        HttpRequest request = HttpRequest.newBuilder()
-	                .uri(URI.create(BASE_URL + "/challenges/users/" + userId + "/challenges/status"))
+	                .uri(URI.create(BASE_URL + "/challenges/users/" + userId + "/challenges/status?token=" + token))  // Token como parámetro
 	                .header("Content-Type", "application/json")
-	                .POST(HttpRequest.BodyPublishers.ofString(String.valueOf(token)))
+	                .method("GET", HttpRequest.BodyPublishers.ofString(String.valueOf(token))) 
 	                .build();
+	        
 
 	        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-	        
 
 	        System.out.println("Response code: " + response.statusCode());
 	        System.out.println("Response body: " + response.body());
-	        
+
 	        return switch (response.statusCode()) {
 	            case 200 -> objectMapper.readValue(response.body(),
-	                    objectMapper.getTypeFactory().constructMapType(Map.class, String.class, Float.class));
+	                    objectMapper.getTypeFactory().constructMapType(Map.class, String.class, Integer.class));  
 	            case 204 -> throw new RuntimeException("No Content: No challenges with progress found");
 	            case 400 -> throw new RuntimeException("Bad Request: Invalid user ID or token");
 	            case 404 -> throw new RuntimeException("Not Found: User or challenge not found");

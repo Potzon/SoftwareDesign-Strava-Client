@@ -992,12 +992,6 @@ public class SwingClientGUI extends JFrame{
 
 	    createChallengesFrame.setVisible(true);
 	}
-
-
-
-    
-
-	
 	
 	private static void challengesStatus() {
 	    JFrame challengeStatusFrame = new JFrame("Challenge Status");
@@ -1005,50 +999,42 @@ public class SwingClientGUI extends JFrame{
 	    challengeStatusFrame.setSize(400, 300);
 	    challengeStatusFrame.setLocationRelativeTo(null);
 
-	    JPanel panel = new JPanel(new GridLayout(4, 2));
+	    JPanel panel = new JPanel();
+	    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));  
 
-	    // Input fields
-	    panel.add(new JLabel("User ID:"));
-	    JTextField userIdField = new JTextField(userId);
-	    panel.add(userIdField);
+	    JScrollPane scrollPane = new JScrollPane(panel);
+	    challengeStatusFrame.add(scrollPane);
 
-	    panel.add(new JLabel("Token:"));
-	    JTextField tokenField = new JTextField(token);
-	    panel.add(tokenField);
+	    try {
+	        Map<String, Integer> statusMap = controller.challengeStatus(userId, token);
 
-	    JButton fetchStatusButton = new JButton("Fetch Challenge Status");
-	    panel.add(fetchStatusButton);
+	        if (statusMap.isEmpty()) {
+	            JLabel noChallengesLabel = new JLabel("No challenges with progress found.");
+	            panel.add(noChallengesLabel);
+	        } else {
+	            for (Map.Entry<String, Integer> entry : statusMap.entrySet()) {
+	                JPanel challengePanel = new JPanel();
+	                challengePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));  
 
-	    challengeStatusFrame.add(panel);
-	    challengeStatusFrame.setVisible(true);
+	                JLabel challengeLabel = new JLabel(entry.getKey());
+	                challengePanel.add(challengeLabel);
 
-	    fetchStatusButton.addActionListener(e -> {
-	        String userId = userIdField.getText();
-	        String token = tokenField.getText();
+	                JProgressBar progressBar = new JProgressBar(0, 100);
+	                progressBar.setValue(entry.getValue());  
+	                progressBar.setStringPainted(true); 
+	                progressBar.setPreferredSize(new Dimension(150, 20)); 
+	                challengePanel.add(progressBar);
 
-	        if (userId.isEmpty() || token.isEmpty()) {
-	            JOptionPane.showMessageDialog(challengeStatusFrame, "Please, fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
-	            return;
-	        }
-
-	        try {
-	            Map<String, Float> statusMap = controller.challengeStatus(userId, token);
-
-	            if (statusMap.isEmpty()) {
-	                JOptionPane.showMessageDialog(challengeStatusFrame, "No challenges with progress found.", "Info", JOptionPane.INFORMATION_MESSAGE);
-	            } else {
-	                StringBuilder result = new StringBuilder("Challenge Progress:\n");
-	                for (Map.Entry<String, Float> entry : statusMap.entrySet()) {
-	                    result.append("Challenge: ").append(entry.getKey())
-	                          .append(", Progress: ").append(entry.getValue()).append("%\n");
-	                }
-	                JOptionPane.showMessageDialog(challengeStatusFrame, result.toString(), "Challenge Status", JOptionPane.INFORMATION_MESSAGE);
+	                panel.add(challengePanel);
 	            }
-	        } catch (Exception ex) {
-	            ex.printStackTrace();
-	            JOptionPane.showMessageDialog(challengeStatusFrame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 	        }
-	    });
+	    } catch (Exception ex) {
+	        ex.printStackTrace();
+	        JLabel errorLabel = new JLabel("Error: " + ex.getMessage());
+	        panel.add(errorLabel);
+	    }
+
+	    challengeStatusFrame.setVisible(true);
 	}
     
 }

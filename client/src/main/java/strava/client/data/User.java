@@ -14,6 +14,6 @@ public record User(
 	    Integer height,
 	    Float maxHeartRate,
 	    Float restHeartRate,
-	    List<Challenge> acceptedChallenges,
+	    List<UserChallenge> acceptedChallenges,
 	    List<TrainingSession> trainingSessions) {}
 

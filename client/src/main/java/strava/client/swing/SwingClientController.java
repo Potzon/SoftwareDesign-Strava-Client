@@ -58,7 +58,7 @@ public class SwingClientController {
 		return serviceProxy.challengeParticipant(challengeId, userId, token);
 	}
 
-	public Map<String, Float> challengeStatus(String userId, String token) {
+	public Map<String, Integer> challengeStatus(String userId, String token) {
 		return serviceProxy.challengeStatus(userId, token);
 	}
 }
