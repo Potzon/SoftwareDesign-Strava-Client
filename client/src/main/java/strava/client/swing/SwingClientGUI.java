@@ -237,7 +237,7 @@ public class SwingClientGUI extends JFrame{
         // Acciones de los botones
         logOutButton.addActionListener(e -> logout(menuFrame, initialFrame));
         newChallengeBtn.addActionListener(e -> setupChallenge());
-        activeChallengesBtn.addActionListener(e -> queryChallenges());
+        activeChallengesBtn.addActionListener(e -> buenqueryChallenges());
         newSessionBtn.addActionListener(e -> openCreateSessionWindow());
         sessionsBtn.addActionListener(e -> querySessions());
         statusBtn.addActionListener(e -> challengesStatus());
@@ -992,6 +992,154 @@ public class SwingClientGUI extends JFrame{
 
 	    createChallengesFrame.setVisible(true);
 	}
+	
+	private static void buenqueryChallenges() {
+	    JFrame createChallengesFrame = new JFrame("Search Challenges");
+	    createChallengesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    createChallengesFrame.setSize(800, 600);
+	    createChallengesFrame.setResizable(false);
+	    createChallengesFrame.setLocationRelativeTo(null);
+	    createChallengesFrame.getContentPane().setLayout(null);
+
+	    // Panel superior con el gradiente y título
+	    JPanel topPanel = new JPanel() {
+	        @Override
+	        protected void paintComponent(Graphics g) {
+	            super.paintComponent(g);
+	            Graphics2D g2d = (Graphics2D) g;
+	            GradientPaint gradient = new GradientPaint(0, 0, Color.WHITE, getWidth(), 0, new Color(252, 76, 2));
+	            g2d.setPaint(gradient);
+	            g2d.fillRect(0, 0, getWidth(), getHeight());
+	        }
+	    };
+	    topPanel.setBounds(0, 0, 800, 100);
+	    topPanel.setPreferredSize(new Dimension(800, 100));
+	    topPanel.setLayout(new BorderLayout());
+
+	    JLabel topLabel = new JLabel("CHALLENGES", SwingConstants.CENTER);
+	    topLabel.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 25));
+	    topLabel.setForeground(Color.WHITE);
+	    topPanel.add(topLabel, BorderLayout.CENTER);
+	    createChallengesFrame.getContentPane().add(topPanel);
+
+	    // Panel para los controles de búsqueda
+	    JPanel controlsPanel = new JPanel();
+	    controlsPanel.setBounds(-16, 100, 800, 218);
+	    controlsPanel.setBackground(new Color(255, 240, 220));
+	    controlsPanel.setLayout(null);
+
+	    JLabel sportLabel = new JLabel("Sport:");
+	    JTextField sportField = new JTextField();
+	    CustomButton fetchButton = new CustomButton("GET CHALLENGES");
+	    fetchButton.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 16));
+	    fetchButton.setBounds(329, 184, 187, 23);
+
+	    controlsPanel.add(fetchButton);
+	    createChallengesFrame.getContentPane().add(controlsPanel);
+
+	    JSpinner startDateSpinner = new JSpinner(new SpinnerDateModel());
+	    startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd"));
+	    startDateSpinner.setValue(new Date());
+	    startDateSpinner.setBounds(383, 50, 172, 20);
+	    controlsPanel.add(startDateSpinner);
+
+	    JSpinner endDateSpinner = new JSpinner(new SpinnerDateModel());
+	    endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd"));
+	    endDateSpinner.setValue(new Date());
+	    endDateSpinner.setBounds(383, 94, 172, 20);
+	    controlsPanel.add(endDateSpinner);
+
+	    JTextField textField = new JTextField();
+	    textField.setBounds(381, 141, 174, 20);
+	    controlsPanel.add(textField);
+	    textField.setColumns(10);
+
+	    JLabel lblstartDate = new JLabel("START DATE");
+	    lblstartDate.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 12));
+	    lblstartDate.setBounds(280, 52, 93, 14);
+	    lblstartDate.setForeground(new Color(252, 76, 2));
+	    controlsPanel.add(lblstartDate);
+
+	    JLabel lblEndDate = new JLabel("END DATE");
+	    lblEndDate.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 12));
+	    lblEndDate.setBounds(280, 96, 78, 14);
+	    lblEndDate.setForeground(new Color(252, 76, 2));
+	    controlsPanel.add(lblEndDate);
+
+	    JLabel lblSport = new JLabel("SPORT");
+	    lblSport.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 12));
+	    lblSport.setBounds(280, 143, 78, 14);
+	    lblSport.setForeground(new Color(252, 76, 2));
+	    controlsPanel.add(lblSport);
+
+	    // Lista para mostrar las sesiones
+	    JScrollPane scrollPane = new JScrollPane();
+	    scrollPane.setViewportBorder(new LineBorder(new Color(252, 76, 2), 2));
+	    scrollPane.setBounds(0, 318, 784, 243);
+	    DefaultListModel<Challenge> listModel = new DefaultListModel<>();
+	    JList<Challenge> sessionList = new JList<>(listModel);
+
+	    // Añadir el JList al JScrollPane
+	    sessionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	    sessionList.setBackground(new Color(255, 240, 220));
+	    scrollPane.setViewportView(sessionList);
+	    scrollPane.getViewport().setBackground(new Color(255, 240, 220));
+
+	    createChallengesFrame.getContentPane().add(scrollPane);
+
+	    fetchButton.addActionListener(e -> {
+	        listModel.clear();
+	        try {
+	            Date startDate = (Date) startDateSpinner.getValue();
+	            Date endDate = (Date) endDateSpinner.getValue();
+	            String sport = sportField.getText();
+
+	            List<Challenge> challenges = controller.challenges(startDate, endDate, sport);
+
+	            if (challenges.isEmpty()) {
+	                listModel.addElement(null);
+	            } else {
+	                for (Challenge challenge : challenges) {
+	                    listModel.addElement(challenge);
+	                }
+	            }
+	        } catch (Exception ex) {
+	            listModel.addElement(null);
+	        }
+	    });
+
+	    sessionList.addMouseListener(new MouseAdapter() {
+	        @Override
+	        public void mouseClicked(MouseEvent e) {
+	            int index = sessionList.locationToIndex(e.getPoint());
+	            if (index != -1) {
+	                Challenge selectedChallenge = listModel.getElementAt(index);
+	                if (selectedChallenge != null) {
+	                    String challengeId = selectedChallenge.challengeId();
+
+	                    try {
+	                        List<Challenge> challenges = controller.challengeParticipant(challengeId, userId, token);
+
+	                        if (challenges.isEmpty()) {
+	                            JOptionPane.showMessageDialog(createChallengesFrame, "Challenge not found.", "Info", JOptionPane.INFORMATION_MESSAGE);
+	                        } else {
+	                            StringBuilder result = new StringBuilder("Participation registered:\n");
+	                            JOptionPane.showMessageDialog(createChallengesFrame, result.toString(), "Challenges", JOptionPane.INFORMATION_MESSAGE);
+	                        }
+	                    } catch (Exception ex) {
+	                        ex.printStackTrace();
+	                        JOptionPane.showMessageDialog(createChallengesFrame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	                    }
+	                }
+	            }
+	        }
+	    });
+
+	    createChallengesFrame.setVisible(true);
+	}
+
+	
+	
 	
 	private static void challengesStatus() {
 	    JFrame challengeStatusFrame = new JFrame("Challenge Status");
