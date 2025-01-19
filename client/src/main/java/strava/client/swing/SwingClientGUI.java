@@ -973,16 +973,36 @@ public class SwingClientGUI extends JFrame{
 	
 	
 	private static void challengesStatus() {
-	    JFrame challengeStatusFrame = new JFrame("Challenge Status");
+	    JFrame challengeStatusFrame = new JFrame("Challenge Progress Tracker");
 	    challengeStatusFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	    challengeStatusFrame.setSize(400, 300);
-	    challengeStatusFrame.setLocationRelativeTo(null);
+	    challengeStatusFrame.setSize(800, 600);
+        challengeStatusFrame.setResizable(false);
+        challengeStatusFrame.setLocationRelativeTo(null);
+        challengeStatusFrame.getContentPane().setLayout(null);
+
+        // Panel superior con el gradiente y título
+        JPanel topPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                GradientPaint gradient = new GradientPaint(0, 0, Color.WHITE, getWidth(), 0, new Color(252, 76, 2));
+                g2d.setPaint(gradient);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        topPanel.setBounds(0, 0, 800, 100);
+        topPanel.setPreferredSize(new Dimension(800, 100));
+        topPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 40));
+        JLabel titleLabel = new JLabel("CHALLENGE PROGRESS TRACKER");
+        titleLabel.setFont(new Font("Rockwell Extra Bold", Font.PLAIN, 25));
+        titleLabel.setForeground(Color.WHITE);
+        topPanel.add(titleLabel);
+        challengeStatusFrame.add(topPanel);
 
 	    JPanel panel = new JPanel();
-	    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));  
-
-	    JScrollPane scrollPane = new JScrollPane(panel);
-	    challengeStatusFrame.add(scrollPane);
+	    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+	    panel.setBackground(new Color(255, 240, 220));
 
 	    try {
 	        Map<String, Integer> statusMap = controller.challengeStatus(userId, token);
@@ -993,15 +1013,20 @@ public class SwingClientGUI extends JFrame{
 	        } else {
 	            for (Map.Entry<String, Integer> entry : statusMap.entrySet()) {
 	                JPanel challengePanel = new JPanel();
-	                challengePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));  
+	                challengePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
+	                challengePanel.setMaximumSize(new Dimension(750, 40));
+	                challengePanel.setBackground(new Color(255, 240, 220));
 
 	                JLabel challengeLabel = new JLabel(entry.getKey());
-	                challengePanel.add(challengeLabel);
+	                challengeLabel.setPreferredSize(new Dimension(250, 20));
+                    challengePanel.add(challengeLabel);
 
 	                JProgressBar progressBar = new JProgressBar(0, 100);
 	                progressBar.setValue(entry.getValue());  
 	                progressBar.setStringPainted(true); 
-	                progressBar.setPreferredSize(new Dimension(150, 20)); 
+	                progressBar.setPreferredSize(new Dimension(400, 20));
+	                progressBar.setForeground(new Color(252, 76, 2));
+	                progressBar.setBackground(new Color(255, 240, 220));
 	                challengePanel.add(progressBar);
 
 	                panel.add(challengePanel);
@@ -1012,7 +1037,18 @@ public class SwingClientGUI extends JFrame{
 	        JLabel errorLabel = new JLabel("Error: " + ex.getMessage());
 	        panel.add(errorLabel);
 	    }
+	    
+	    JScrollPane scrollPane = new JScrollPane(panel);
+	    scrollPane.setBackground(new Color(255, 240, 220));
 
+	    scrollPane.getViewport().setBackground(new Color(255, 240, 220));
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setBounds(0, 100, 800, 500);
+        scrollPane.getViewport().setBackground(new Color(255, 240, 220));
+        challengeStatusFrame.add(scrollPane);
+
+        // Mostrar la ventana
 	    challengeStatusFrame.setVisible(true);
 	}
     
