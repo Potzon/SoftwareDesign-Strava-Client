@@ -921,17 +921,31 @@ public class SwingClientGUI extends JFrame{
 	        try {
 	            Date startDate = (Date) startDateSpinner.getValue();
 	            Date endDate = (Date) endDateSpinner.getValue();
-	            String sport = sportField.getText();
+	            String sport = textField.getText();
+	            
+	            List<Challenge> challenges = null;
+	            
+				if (sport.isEmpty()) {
+					challenges = controller.challenges(startDate, endDate, null);
+				}else {
+					challenges = controller.challenges(startDate, endDate, sport);
+				}
 
-	            List<Challenge> challenges = controller.challenges(startDate, endDate, sport);
+	            
 
 	            if (challenges.isEmpty()) {
 	                listModel.addElement(null);
 	            } else {
-	                for (Challenge challenge : challenges) {
-	                    listModel.addElement(challenge);
-	                    
-	                }
+	            	if (sport.isEmpty()) {
+	            		for (int i = 0; i < 5; i++) {
+		                    listModel.addElement(challenges.get(i));  
+		                }
+					}else {
+						for (Challenge challenge : challenges) {
+		                    listModel.addElement(challenge);  
+		                }
+					}
+	                
 	            }
 	        } catch (Exception ex) {
 	            listModel.addElement(null);

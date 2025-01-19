@@ -312,7 +312,7 @@ public class HttpServiceProxy implements IStravaServiceProxy{
 	            hasParams = true;
 	        }
 	        if (sport != null) {
-	            urlBuilder.append(hasParams ? "&" : "?").append("Sport=").append(sport);
+	            urlBuilder.append(hasParams ? "&" : "?").append("sport=").append(sport);
 	        }
 
 	        HttpRequest request = HttpRequest.newBuilder()
